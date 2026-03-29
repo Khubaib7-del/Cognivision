@@ -63,3 +63,13 @@ This is a classic Viva question!
 - **Accuracy**: The percentage of times the AI correctly guesses "Attentive" vs. "Distracted."
 - **Optimizer (Adam)**: The tool that helps the AI "adjust" its brain after every guess to become more accurate. Think of it as the AI's "teacher."
 - **Transfer Learning**: We are using a pre-trained "brain" (**MobileNetV2**) that already knows what eyes, ears, and faces look like. We are just teaching it how to specifically tell the difference between "Watching the teacher" and "Not watching."
+
+---
+
+### 🚀 Phase 2: Multi-Student Scaling (YOLOv8)
+- **Why YOLO?**: YOLO (You Only Look Once) is the industry standard for real-time detection because it processes the entire image in a single pass, making it incredibly fast.
+- **How it works**: 
+  1. **Detection**: YOLO identifies all "People" in the classroom.
+  2. **Cropping**: We crop the "Face Area" of each person.
+  3. **Classification**: We run our **Phase 1 Classifier** on each cropped face to get individual attention scores.
+- **Addressing "Cheating"**: By detecting "Cell Phones" simultaneously, we can identify distracted students even if they are looking down at their laps!

@@ -10,10 +10,11 @@ class AttentionClassifier(nn.Module):
     """
     def __init__(self, num_classes=2):
         super(AttentionClassifier, self).__init__()
-        # Load pretrained MobileNetV2
-        self.base_model = models.mobilenet_v2(pretrained=True)
+        # Load pretrained MobileNetV2 with modern weight handling
+        weights = models.MobileNet_V2_Weights.IMAGENET1K_V1
+        self.base_model = models.mobilenet_v2(weights=weights)
         
-        # Freeze base layers (optional, usually good for small datasets)
+        # Freeze base layers for stability on small datasets
         for param in self.base_model.parameters():
             param.requires_grad = False
             
