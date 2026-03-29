@@ -61,7 +61,7 @@ streamer = VideoStreamer()
 @app.get("/")
 async def index():
     from fastapi.responses import HTMLResponse
-    with open("src/api/index.html", "r") as f:
+    with open("src/api/index.html", "r", encoding="utf-8") as f:
         return HTMLResponse(content=f.read())
 
 @app.get("/video_feed")
@@ -76,4 +76,5 @@ async def get_stats():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    # Changed to 8001 to avoid port conflicts on Windows
+    uvicorn.run(app, host="0.0.0.0", port=8001)
