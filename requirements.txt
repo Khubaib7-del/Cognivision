@@ -1,0 +1,9 @@
+opencv-python
+torch
+torchvision
+flask
+mediapipe
+fer
+ultralytics
+numpy
+pandas
