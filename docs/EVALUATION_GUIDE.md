@@ -66,10 +66,7 @@ This is a classic Viva question!
 
 ---
 
-### 🚀 Phase 2: Multi-Student Scaling (YOLOv8)
-- **Why YOLO?**: YOLO (You Only Look Once) is the industry standard for real-time detection because it processes the entire image in a single pass, making it incredibly fast.
-- **How it works**: 
-  1. **Detection**: YOLO identifies all "People" in the classroom.
-  2. **Cropping**: We crop the "Face Area" of each person.
-  3. **Classification**: We run our **Phase 1 Classifier** on each cropped face to get individual attention scores.
-- **Addressing "Cheating"**: By detecting "Cell Phones" simultaneously, we can identify distracted students even if they are looking down at their laps!
+### 📈 Phase 3: Attention Scoring Logic
+- **The Formula**: $[ (Attentive Students / Total Students) * 100 ] - (Phones * Penalty)$
+- **Why it matters**: A raw count isn't enough. We need a single "KPI" (Key Performance Indicator) that a teacher can look at to see how the class is doing overall.
+- **Penalty Logic**: We subtract a fixed percentage for every mobile phone detected. This makes students' attention scores more realistic and harder to "fake" by just staring at the teacher while hiding a phone.
