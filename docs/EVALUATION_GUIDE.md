@@ -66,7 +66,21 @@ This is a classic Viva question!
 
 ---
 
-### 📈 Phase 3: Attention Scoring Logic
-- **The Formula**: $[ (Attentive Students / Total Students) * 100 ] - (Phones * Penalty)$
-- **Why it matters**: A raw count isn't enough. We need a single "KPI" (Key Performance Indicator) that a teacher can look at to see how the class is doing overall.
-- **Penalty Logic**: We subtract a fixed percentage for every mobile phone detected. This makes students' attention scores more realistic and harder to "fake" by just staring at the teacher while hiding a phone.
+### 🛠️ How we Debugged the AI
+- **Problem**: The model initially showed 0.0% attention even when the student was looking at the camera.
+- **Root Cause Analysis**: 
+  1. **Data Bias**: We only had ~10 images. The AI "overfit" (memorized) the distracted class.
+  2. **Heuristic Failure**: The initial "Face Crop" was too small, missing the eyes.
+- **Solution**: 
+  - We implemented a **Debug Window** to see the AI's "Eyes."
+  - we expanded the cropping area.
+  - We added more **Attentive** samples to balance the dataset.
+
+---
+
+### 📚 Public Datasets for Attention
+If you want to explain "Where did the AI behavior patterns come from?", here are the gold standard datasets:
+1. **DAiSEE**: Specifically for engagement and boredom detection in students.
+2. **FER-2013**: General facial expressions (Neutral vs. Bored/Sleepy).
+3. **mEAL**: Multi-modal Engagement and Attention Learning.
+4. **WIDER Face**: Used for high-accuracy face detection.

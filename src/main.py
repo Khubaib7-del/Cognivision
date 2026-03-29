@@ -39,10 +39,12 @@ def main():
         for det in detections:
             x1, y1, x2, y2 = det['bbox']
             status = det['status']
+            conf = det['confidence']
             color = (0, 255, 0) if status == 'attentive' else (0, 0, 255)
             
+            label_text = f"{det['type'].upper()}: {status} ({conf:.1%})"
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-            cv2.putText(frame, f"{det['type'].upper()}: {status}", (x1, y1 - 10),
+            cv2.putText(frame, label_text, (x1, y1 - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
         # Show the first face crop in a "Debug" window

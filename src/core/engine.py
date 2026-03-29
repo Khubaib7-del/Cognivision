@@ -57,10 +57,11 @@ class CogniVisionEngine:
                     continue
                 
                 # C. Classify attention
-                attention_status = self._classify_attention(face_crop)
+                attention_status, confidence = self._classify_attention(face_crop)
                 results.append({
                     'type': 'student',
                     'status': attention_status,
+                    'confidence': confidence,
                     'bbox': bbox
                 })
                 if return_crops:
@@ -69,6 +70,7 @@ class CogniVisionEngine:
                 results.append({
                     'type': 'object',
                     'status': 'distraction (phone)',
+                    'confidence': det['confidence'],
                     'bbox': bbox
                 })
                 
@@ -79,6 +81,7 @@ class CogniVisionEngine:
     def _classify_attention(self, crop):
         """
         Helper to run the classifier on a cropped image.
+        Returns (label, confidence).
         """
         img = Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB))
         img_tensor = self.transform(img).unsqueeze(0)
@@ -88,9 +91,10 @@ class CogniVisionEngine:
             
         with torch.no_grad():
             output = self.classifier(img_tensor)
-            _, predicted = torch.max(output, 1)
+            prob = torch.nn.functional.softmax(output, dim=1)
+            confidence, predicted = torch.max(prob, 1)
             
-        return self.labels[predicted.item()]
+        return self.labels[predicted.item()], confidence.item()
 
 if __name__ == "__main__":
     # Smoke test

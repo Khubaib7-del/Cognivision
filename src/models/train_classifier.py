@@ -12,10 +12,13 @@ def train_model():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Training on: {device}")
 
-    # 2. Data Preparation
+    # 2. Data Preparation (With Advanced Augmentation)
     data_dir = "data/raw"
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
+        transforms.RandomHorizontalFlip(p=0.5), # Effectively doubles your data
+        transforms.RandomRotation(15),         # Handles head tilts
+        transforms.ColorJitter(brightness=0.2, contrast=0.2), # Handles lighting issues
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
@@ -27,12 +30,12 @@ def train_model():
     model = AttentionClassifier(num_classes=len(dataset.classes))
     model.to(device)
 
-    # 4. Loss and Optimizer
+    # 4. Loss and Optimizer (Improved for small datasets)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.0001) # Lower LR for stability
 
-    # 5. Training Loop (Simple)
-    num_epochs = 5
+    # 5. Training Loop
+    num_epochs = 20 # Increased epochs to allow learning on small data
     print(f"Starting training for {num_epochs} epochs...")
     
     for epoch in range(num_epochs):
@@ -50,7 +53,8 @@ def train_model():
             
             running_loss += loss.item()
         
-        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss/len(train_loader):.4f}")
+        if (epoch + 1) % 5 == 0:
+            print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss/len(train_loader):.4f}")
 
     # 6. Save Model
     save_path = "src/models/attention_model.pth"
