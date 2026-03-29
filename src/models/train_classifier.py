@@ -30,13 +30,13 @@ def train_model():
     model = AttentionClassifier(num_classes=len(dataset.classes))
     model.to(device)
 
-    # 4. Loss and Optimizer (Improved for small datasets)
+    # 4. Loss and Optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.0001) # Lower LR for stability
-
+    optimizer = optim.Adam(model.parameters(), lr=0.0002) # Adjusted LR
+    
     # 5. Training Loop
-    num_epochs = 20 # Increased epochs to allow learning on small data
-    print(f"Starting training for {num_epochs} epochs...")
+    num_epochs = 30 # Even more epochs for better convergence
+    print(f"Starting training for {num_epochs} epochs with the new {len(dataset)} images...")
     
     for epoch in range(num_epochs):
         model.train()
@@ -54,7 +54,11 @@ def train_model():
             running_loss += loss.item()
         
         if (epoch + 1) % 5 == 0:
-            print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {running_loss/len(train_loader):.4f}")
+            avg_loss = running_loss / len(train_loader)
+            print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss:.4f}")
+            if avg_loss < 0.1: # Early stop if we overfit well
+                print("Optimal loss reached. Saving model.")
+                break
 
     # 6. Save Model
     save_path = "src/models/attention_model.pth"

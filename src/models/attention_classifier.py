@@ -14,9 +14,10 @@ class AttentionClassifier(nn.Module):
         weights = models.MobileNet_V2_Weights.IMAGENET1K_V1
         self.base_model = models.mobilenet_v2(weights=weights)
         
-        # Freeze base layers for stability on small datasets
-        for param in self.base_model.parameters():
-            param.requires_grad = False
+        # Unfreeze the last few layers to allow for fine-tuning
+        # This makes the model more flexible for your specific room/face
+        for param in self.base_model.features[-3:].parameters():
+            param.requires_grad = True
             
         # Replace the classifier head
         # MobileNetV2 last layer is self.base_model.classifier[1]
