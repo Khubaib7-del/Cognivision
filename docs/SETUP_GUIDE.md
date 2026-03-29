@@ -6,6 +6,13 @@ Welcome to the project! Follow these steps to set up your environment using PyCh
 - **PyCharm Professional or Community Edition**
 - Git installed on your system.
 
+## 0️⃣ Install Python (If not already installed)
+If you don't have Python installed on your computer:
+1. **Official Download**: Visit [python.org/downloads](https://www.python.org/downloads/) and download **Python 3.10** or higher.
+2. **Installation**: Run the `.exe` file. 
+   - **IMPORTANT**: Check the box that says **"Add Python to PATH"** before clicking Install.
+3. **PyCharm Alternative**: When you follow Step 2 below, PyCharm can also download Python for you automatically!
+
 ## 📥 Getting Started
 1. **Clone the Repo**:
    ```bash

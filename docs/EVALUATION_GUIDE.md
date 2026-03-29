@@ -33,3 +33,18 @@ This gives a clear, quantifiable metric for the teacher/evaluator to see the cla
 
 **Q: Why a Web Dashboard instead of just a script?**
 *A: A web dashboard makes the system "User-Friendly" and "Ready-to-Deploy," showing that we considered the end-user (the teacher) in our design.*
+
+---
+
+### 💡 Technical Tip: What is the "PATH"?
+During installation, you checked **"Add Python to PATH"**.
+- **The "PATH"** is like a system-wide address book. By adding Python to it, you told Windows: *"Whenever I type 'python' in any folder, look in this specific location to find the program."*
+- Without this, you would have to type the full address (like `C:\Users\Name\AppData\Local\Python...`) every single time!
+
+---
+
+### 📸 Phase 1: Custom Data Collection
+To make the AI accurate for **your** classroom, we built a `collector.py` tool.
+- **The Concept**: "Supervised Learning."
+- **How it works**: We show the AI examples of what an "Attentive" student looks like vs. a "Distracted" one. 
+- **The Process**: By pressing 'a' or 'd' while using the tool, we are creating a **Labeled Dataset**. This is the single most important step in building any real-world AI system.
