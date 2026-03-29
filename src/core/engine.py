@@ -34,22 +34,23 @@ class CogniVisionEngine:
         
         self.labels = ["attentive", "distracted"]
 
-    def process_frame(self, frame):
+    def process_frame(self, frame, return_crops=False):
         """
         Runs the full pipeline on a single frame.
         """
-        # A. Detect people and phones
         detections = self.detector.detect_students(frame)
         
         results = []
+        crops = []
         for det in detections:
             label = det['label']
-            bbox = det['bbox'] # [x1, y1, x2, y2]
+            bbox = det['bbox']
             
             if label == 'person':
-                # B. Crop face area (simple heuristic: top 1/3 of bounding box)
+                # B. Crop face area (Improved: top 45% for better eye/face coverage)
                 x1, y1, x2, y2 = bbox
-                face_y2 = y1 + (y2 - y1) // 3
+                h = y2 - y1
+                face_y2 = y1 + int(h * 0.45) 
                 face_crop = frame[y1:face_y2, x1:x2]
                 
                 if face_crop.size == 0:
@@ -62,14 +63,17 @@ class CogniVisionEngine:
                     'status': attention_status,
                     'bbox': bbox
                 })
+                if return_crops:
+                    crops.append(face_crop)
             else:
-                # D. Just record phone as a separate entity
                 results.append({
                     'type': 'object',
                     'status': 'distraction (phone)',
                     'bbox': bbox
                 })
                 
+        if return_crops:
+            return results, crops
         return results
 
     def _classify_attention(self, crop):

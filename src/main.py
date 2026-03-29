@@ -31,8 +31,8 @@ def main():
         if not ret:
             break
 
-        # 3. Process with AI Engine
-        detections = engine.process_frame(frame)
+        # 3. Process with AI Engine (with DEBUG CROPS enabled)
+        detections, crops = engine.process_frame(frame, return_crops=True)
         class_score = scorer.calculate_class_score(detections)
 
         # 4. Visualization
@@ -44,6 +44,11 @@ def main():
             cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
             cv2.putText(frame, f"{det['type'].upper()}: {status}", (x1, y1 - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+        # Show the first face crop in a "Debug" window
+        if crops:
+            debug_face = cv2.resize(crops[0], (200, 200))
+            cv2.imshow("AI Face View (DEBUG)", debug_face)
 
         # Overlay overall score
         cv2.putText(frame, f"CLASS ATTENTION: {class_score}%", (20, 40),
