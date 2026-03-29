@@ -43,8 +43,23 @@ During installation, you checked **"Add Python to PATH"**.
 
 ---
 
-### 📸 Phase 1: Custom Data Collection
-To make the AI accurate for **your** classroom, we built a `collector.py` tool.
-- **The Concept**: "Supervised Learning."
-- **How it works**: We show the AI examples of what an "Attentive" student looks like vs. a "Distracted" one. 
-- **The Process**: By pressing 'a' or 'd' while using the tool, we are creating a **Labeled Dataset**. This is the single most important step in building any real-world AI system.
+### 🌐 Global vs. 🍦 Virtual Environments (Venv)
+This is a classic Viva question!
+- **Global Environment**: This is the Python installed directly on your Windows system. Everything you install is available to every project. 
+  - *Pro*: Easy to set up. *Con*: Can get messy if different projects need different versions of the same library.
+- **Virtual Environment (Venv)**: A "mini-copy" of Python just for one project. 
+  - *Pro*: Keeps projects isolated and clean. *Con*: Requires a bit more setup.
+- **Our Choice**: We started with the **Global** interpreter for simplicity in your Semester 4 project, ensuring all your AI libraries are ready to go immediately!
+
+---
+
+**Q: What is a Loss Function?**
+*A: It's the "Score" of how wrong our AI is. A high loss means the AI is guessing incorrectly; a low loss means it’s learning the patterns correctly.*
+
+---
+
+### 🔥 Training Concepts for Your Viva
+- **Epoch**: One full trip through all your training data. For example, if we have 50 images and run 5 epochs, the AI sees each image 5 times.
+- **Accuracy**: The percentage of times the AI correctly guesses "Attentive" vs. "Distracted."
+- **Optimizer (Adam)**: The tool that helps the AI "adjust" its brain after every guess to become more accurate. Think of it as the AI's "teacher."
+- **Transfer Learning**: We are using a pre-trained "brain" (**MobileNetV2**) that already knows what eyes, ears, and faces look like. We are just teaching it how to specifically tell the difference between "Watching the teacher" and "Not watching."

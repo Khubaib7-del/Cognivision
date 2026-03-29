@@ -12,11 +12,18 @@ If you don't have Python installed on your computer:
 2. **Installation**: Check the box **"Add Python to PATH"** before clicking Install.
 
 ## 🐍 Configure Python Interpreter in Antigravity
-1. Look at the bottom bar of your **Antigravity** window. 
-2. Click the highlighted **"Select Python Interpreter"** message.
-3. Select **"Enter interpreter path..."**.
-4. Paste this path:
-   `C:\Users\T L S\AppData\Local\Python\bin\python.exe`
+1. Click the highlighted **"Select Python Interpreter"** message at the bottom.
+2. Select **"Enter interpreter path..."**.
+3. Pick the file named simply **`python.exe`** from this folder:
+   `C:\Users\T L S\AppData\Local\Python\bin\`
+4. If it says "Unable to handle": **DON'T WORRY**. Your environment is already set up and ready in the terminal!
+
+## 🚀 Running the Data Collector
+If the IDE still shows red underlines, ignore them for now. You can still run the full project from the terminal:
+```powershell
+& "C:\Users\T L S\AppData\Local\Python\bin\python.exe" src/data/collector.py
+```
+**This is the most important command to get your project started!**
 
 ## 📦 Install Dependencies
 I have already installed the main AI libraries for you! If you ever need to add more, run this in the Antigravity terminal:
@@ -27,6 +34,7 @@ I have already installed the main AI libraries for you! If you ever need to add 
 ## 🚀 Running the Data Collector
 Once the interpreter is selected, run our tool to start building your dataset:
 ```powershell
+cd cognivision
 & "C:\Users\T L S\AppData\Local\Python\bin\python.exe" src/data/collector.py
 ```
 
