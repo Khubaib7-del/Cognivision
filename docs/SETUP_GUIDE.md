@@ -31,6 +31,13 @@ PyCharm manages its own internal interpreters.
    pip install -r requirements.txt
    ```
 
+## 🚀 Running the App
+1. In the PyCharm terminal, run:
+   ```bash
+   python src/api/main.py
+   ```
+2. Open your browser at `http://localhost:8000`.
+
 ## 🔑 Environment Variables
 1. Copy `.env.example` to `.env`.
-2. Update the keys inside `.env` as needed (do NOT commit `.env`).
+2. Update the keys inside `.env` (do NOT commit `.env`).
