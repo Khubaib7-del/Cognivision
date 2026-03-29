@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CogniVision | AI Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        nav {
+            width: 100%;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .video-feed {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            background: black;
+            border: 1px solid var(--border);
+        }
+
+        .video-feed img {
+            width: 100%;
+            display: block;
+        }
+
+        .stats-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            color: #818cf8;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        h2 { margin: 0 0 1rem 0; font-size: 1.25rem; }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">COGNIVISION AI</div>
+        <div class="status-badge" style="color: #4ade80;">● SYSTEM LIVE</div>
+    </nav>
+
+    <div class="container">
+        <!-- Live Feed Section -->
+        <div class="glass-panel">
+            <h2>Classroom Monitoring Feed</h2>
+            <div class="video-feed">
+                <img src="/video_feed" alt="Live Feed">
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats-panel">
+            <div class="glass-panel">
+                <div class="stat-card">
+                    <div class="stat-label">System Performance</div>
+                    <div class="stat-value">30 FPS</div>
+                </div>
+                <div class="stat-card" style="margin-top: 1rem;">
+                    <div class="stat-label">AI Model</div>
+                    <div class="stat-value" style="font-size: 1rem; color: #c084fc;">MobileNetV2 + YOLOv8</div>
+                </div>
+            </div>
+
+            <div class="glass-panel">
+                <h2>Quick Actions</h2>
+                <button class="btn" style="width: 100%;">DOWNLOAD REPORT</button>
+                <button class="btn" style="width: 100%; margin-top: 0.5rem; background: transparent; border: 1px solid var(--primary);">RESET ENGINE</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

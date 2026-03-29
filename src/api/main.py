@@ -1,46 +1,79 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, StreamingResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-import uvicorn
+from fastapi import FastAPI, Response
+from fastapi.responses import StreamingResponse
 import cv2
+import sys
 import os
+import threading
+import time
+
+# Add src to python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.engine import CogniVisionEngine
+from core.scorer import CogniVisionScorer
 
 app = FastAPI(title="CogniVision Dashboard")
 
-# Mount static files and templates
-# app.mount("/static", StaticFiles(directory="src/api/static"), name="static")
-# templates = Jinja2Templates(directory="src/api/templates")
+# Initialize AI Engine and Scorer
+engine = CogniVisionEngine()
+scorer = CogniVisionScorer()
 
-@app.get("/", response_class=HTMLResponse)
-async def read_root(request: Request):
-    return """
-    <html>
-        <head>
-            <title>CogniVision</title>
-            <style>
-                body { font-family: sans-serif; background: #0f172a; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-                .container { text-align: center; background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 1rem; backdrop-filter: blur(10px); }
-                h1 { margin-bottom: 1rem; }
-                .video-feed { width: 640px; height: 480px; background: #000; border-radius: 0.5rem; margin-bottom: 1rem; }
-                .stats { font-size: 1.2rem; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>CogniVision Dashboard 👁️</h1>
-                <div class="video-feed">
-                    <!-- Video feed will go here -->
-                    <p style="padding-top: 200px; color: #64748b;">[ Video Feed Loading... ]</p>
-                </div>
-                <div class="stats">
-                    <p>Attention Score: --%</p>
-                    <p>Status: Initializing AI Core...</p>
-                </div>
-            </div>
-        </body>
-    </html>
-    """
+class VideoStreamer:
+    def __init__(self):
+        self.cap = cv2.VideoCapture(0)
+        self.lock = threading.Lock()
+        
+    def get_frame(self):
+        while True:
+            success, frame = self.cap.read()
+            if not success:
+                break
+            
+            # Run AI Engine
+            detections = engine.process_frame(frame)
+            class_score = scorer.calculate_class_score(detections)
+            
+            # Draw on frame
+            for det in detections:
+                x1, y1, x2, y2 = det['bbox']
+                status = det['status']
+                conf = det['confidence']
+                color = (0, 255, 0) if status == 'attentive' else (0, 0, 255)
+                
+                label_text = f"{det['type'].upper()}: {status} ({conf:.1%})"
+                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+                cv2.putText(frame, label_text, (x1, y1 - 10),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            
+            # Overlay Score
+            cv2.putText(frame, f"ATTENTION: {class_score}%", (20, 50),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 3)
+            
+            # Encode as JPEG
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame_bytes = buffer.tobytes()
+            
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+
+streamer = VideoStreamer()
+
+@app.get("/")
+async def index():
+    from fastapi.responses import HTMLResponse
+    with open("src/api/index.html", "r") as f:
+        return HTMLResponse(content=f.read())
+
+@app.get("/video_feed")
+async def video_feed():
+    return StreamingResponse(streamer.get_frame(), 
+                             media_type="multipart/x-mixed-replace; boundary=frame")
+
+@app.get("/api/stats")
+async def get_stats():
+    # Placeholder for historical stats if needed later
+    return {"status": "online"}
 
 if __name__ == "__main__":
+    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
