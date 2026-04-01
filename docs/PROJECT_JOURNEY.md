@@ -10,7 +10,7 @@
 ### 📅 [2026-03-29] - Roadmap Refinement
 - **Work Done**: 
   - Aligned project with a 4-phase development model.
-  - Finalized tech stack: **FastAPI + YOLOv8 + MobileNetV2**.
+  - Finalized tech stack: **FastAPI + YOLOv8 + Custom PyTorch CNN**.
   - Expanded dataset scope to include **DAiSEE** and **COCO**.
   - Updated `requirements.txt` to reflect the high-performance stack.
 - **Next Steps**: 

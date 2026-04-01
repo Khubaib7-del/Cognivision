@@ -12,8 +12,8 @@ This document is designed to help you understand the "How" and "Why" of CogniVis
 - **Multi-tasking**: It can detect faces and objects (like phones) simultaneously in one pass.
 
 ## 🧠 AI Components Explained
-### 1. Transfer Learning (The "Shortcut")
-Instead of training a model from scratch (which takes weeks and millions of images), we use **Pretrained Models** (ResNet/MobileNet) that already "know" how to see shapes and colors. We only "fine-tune" the last layer to recognize specific classroom behaviors.
+### 1. Custom Convolutional Neural Network (CNN)
+As per standard academic rigor, we did not use pre-trained models or shortcuts like Transfer Learning. We built a **Custom CNN Architecture from scratch** using PyTorch. The model learns to find spatial hierarchies of features (like edges, shapes, and textures) from the training data directly to recognize specific classroom behaviors.
 
 ### 2. Bounding Boxes & Confidence Scores
 - **Bounding Box**: The rectangle around a student's face.
@@ -62,7 +62,7 @@ This is a classic Viva question!
 - **Epoch**: One full trip through all your training data. For example, if we have 50 images and run 5 epochs, the AI sees each image 5 times.
 - **Accuracy**: The percentage of times the AI correctly guesses "Attentive" vs. "Distracted."
 - **Optimizer (Adam)**: The tool that helps the AI "adjust" its brain after every guess to become more accurate. Think of it as the AI's "teacher."
-- **Transfer Learning**: We are using a pre-trained "brain" (**MobileNetV2**) that already knows what eyes, ears, and faces look like. We are just teaching it how to specifically tell the difference between "Watching the teacher" and "Not watching."
+- **Custom CNN Architecture**: We chose to build the Attention Classifier from scratch (defining Convolutional layers, Max Pooling, and Fully Connected layers). This proves a deep understanding of standard deep learning patterns rather than just importing a pre-trained model.
 
 ---
 

@@ -18,16 +18,24 @@ class CogniVisionEngine:
         
         # 2. Initialize Classifier
         self.classifier = AttentionClassifier()
-        if torch.cuda.is_available():
-            self.classifier.load_state_dict(torch.load(classifier_weights))
-            self.classifier.to("cuda")
+        import os
+        if os.path.exists(classifier_weights):
+            try:
+                if torch.cuda.is_available():
+                    self.classifier.load_state_dict(torch.load(classifier_weights))
+                    self.classifier.to("cuda")
+                else:
+                    self.classifier.load_state_dict(torch.load(classifier_weights, map_location="cpu"))
+            except Exception as e:
+                print(f"Phase 1 Warning: Old model weights incompatible. Did you train the new Custom CNN? Error: {e}")
         else:
-            self.classifier.load_state_dict(torch.load(classifier_weights, map_location="cpu"))
+            print("Phase 1 Warning: attention_model.pth not found. The model will use random initialization. Please train it first.")
+        
         self.classifier.eval()
         
         # 3. Setup transforms
         self.transform = transforms.Compose([
-            transforms.Resize((224, 224)),
+            transforms.Resize((128, 128)),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])

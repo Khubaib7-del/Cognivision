@@ -9,7 +9,7 @@
 *   **Application Type:** FastAPI Web Dashboard (`127.0.0.1:8001`) rendering a real-time OpenCV webcam feed via exact HTML/CSS UI (`src/api/index.html`).
 *   **AI Pipeline:** (`src/core/engine.py`)
     1.  **Detector:** YOLOv8 Nano (`yolov8n.pt`). Detects persons (students) and objects (phones/distractions).
-    2.  **Classifier:** Custom PyTorch MobileNetV2 (`attention_model.pth`). Takes cropped face arrays and classifies them as `attentive` or `distracted`.
+    2.  **Classifier:** Custom PyTorch CNN Model (`attention_model.pth`). Takes cropped face arrays and classifies them as `attentive` or `distracted` using an architecture built from scratch.
 *   **Scoring Logic:** (`src/core/scorer.py`) Calculates an overall percentage of class attention and applies penalties for detected objects (like phones).
 
 ## 2. Hardware Environment & Limitations
@@ -25,6 +25,6 @@
 *   *Note:* The bounding boxes currently draw separate "Object" boxes over students holding phones (resulting in 2 overlapping boxes per person).
 
 ## 4. Next Session Roadmap
-1.  **Retraining the Model:** The current MobileNetV2 classifier confidently hovers around `~73%` (Outputting Softmax logic). The primary goal is to **retrain this model using standard datasets** to achieve 90%+ confidence.
+1.  **Retraining the Model:** The new Custom CNN classifier needs to be properly trained. The primary goal is to **train this model using standard datasets** to achieve 90%+ confidence.
 2.  **Addressing CPU Lag / Low FPS:** After replacing the model, implement **Frame Skipping** (e.g., executing AI on every 3rd frame but drawing the UI on every frame) or **Frame Resizing** (`640x480`) to drastically increase real-time webcam smoothness on the CPU.
 3.  **UI Redesign:** Fix the "double box" issue (by merging proximity bounding boxes) only *after* the new models are fully integrated.
