@@ -11,7 +11,7 @@ class CogniVisionScorer:
         Formula: (Attentive Students / Total Students) * 100 - Penalties
         """
         students = [r for r in engine_results if r['type'] == 'student']
-        phones = [r for r in engine_results if r['status'] == 'distraction (phone)']
+        phones = [r for r in engine_results if r['type'] == 'distraction' and r['status'] == 'phone_detected']
         
         if not students:
             return 0.0
@@ -34,5 +34,7 @@ class CogniVisionScorer:
             "total_students": len(students),
             "attentive": sum(1 for s in students if s['status'] == 'attentive'),
             "distracted": sum(1 for s in students if s['status'] == 'distracted'),
-            "score": self.calculate_class_score(engine_results)
+            "unknown": sum(1 for s in students if s['status'] == 'unknown'),
+            "phones_detected": sum(1 for r in engine_results if r['type'] == 'distraction'),
+            "class_score": self.calculate_class_score(engine_results)
         }

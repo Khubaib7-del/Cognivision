@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  cognivision:
+    build: .
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./data:/app/data:ro
+      - ./src/api:/app/src/api:ro
+    restart: unless-stopped

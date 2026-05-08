@@ -1,11 +1,23 @@
-fastapi
-uvicorn
-ultralytics
-opencv-python
-torch
-torchvision
-mediapipe
-numpy
-pandas
-python-multipart
-jinja2
+# Core AI & ML
+torch>=2.0.0
+torchvision>=0.15.0
+ultralytics>=8.0.0
+Pillow>=9.0.0
+
+# API & Web
+fastapi>=0.95.0
+uvicorn>=0.21.0
+python-multipart>=0.0.5
+
+# Data & Computer Vision
+numpy>=1.24.0
+opencv-python>=4.7.0
+pandas>=1.5.0
+
+# Configuration & Utils
+PyYAML>=6.0
+python-dotenv>=1.0.0
+
+# Development & Testing
+pytest>=7.3.0
+pytest-cov>=4.1.0

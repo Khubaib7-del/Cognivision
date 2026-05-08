@@ -1,0 +1,19 @@
+project:
+  name: CogniVision
+  version: 1.0.0
+
+models:
+  detector: "yolov8n.pt"
+  classifier: "attention_classifier_best.pth"
+  input_size: 128
+
+training:
+  batch_size: 32
+  learning_rate: 0.001
+  epochs: 30
+  validation_split: 0.2
+  test_split: 0.1
+
+inference:
+  confidence_threshold: 0.5
+  frame_skip: 1

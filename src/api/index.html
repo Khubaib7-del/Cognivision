@@ -128,8 +128,16 @@
         <!-- Live Feed Section -->
         <div class="glass-panel">
             <h2>Classroom Monitoring Feed</h2>
-            <div class="video-feed">
-                <img src="/video_feed" alt="Live Feed">
+            <div class="video-feed" id="feed-wrapper">
+                <img id="server-feed" src="/video_feed" alt="Live Feed">
+                <video id="local-video" autoplay playsinline style="display:none; width:100%;"></video>
+                <canvas id="overlay-canvas" style="display:none; position:relative; width:100%;"></canvas>
+            </div>
+
+            <div style="margin-top:0.75rem; display:flex; gap:0.5rem;">
+                <button class="btn" id="btn-server">Use Server Feed</button>
+                <button class="btn" id="btn-local">Use Local Webcam</button>
+                <button class="btn" id="btn-stop" style="background:#ef4444; display:none;">Stop Local</button>
             </div>
         </div>
 
@@ -138,7 +146,9 @@
             <div class="glass-panel">
                 <div class="stat-card">
                     <div class="stat-label">System Performance</div>
-                    <div class="stat-value">30 FPS</div>
+                    <div class="stat-value"><span id="fps-value">--</span> FPS</div>
+                    <div class="stat-label" style="margin-top:8px;">Last Response</div>
+                    <div class="stat-value"><span id="resp-time-value">--</span> ms</div>
                 </div>
                 <div class="stat-card" style="margin-top: 1rem;">
                     <div class="stat-label">AI Model</div>
@@ -148,10 +158,159 @@
 
             <div class="glass-panel">
                 <h2>Quick Actions</h2>
-                <button class="btn" style="width: 100%;">DOWNLOAD REPORT</button>
+                <div style="display:flex; gap:0.5rem; align-items:center;">
+                    <label style="flex:1; color:#94a3b8; font-size:0.9rem;">Confidence Threshold</label>
+                    <input id="conf-threshold" type="range" min="0" max="100" value="50" style="width:140px;"> 
+                    <div id="conf-value" style="width:42px; text-align:right; color:#cbd5e1;">50%</div>
+                </div>
+                <button class="btn" style="width: 100%; margin-top:0.75rem;">DOWNLOAD REPORT</button>
                 <button class="btn" style="width: 100%; margin-top: 0.5rem; background: transparent; border: 1px solid var(--primary);">RESET ENGINE</button>
             </div>
         </div>
     </div>
 </body>
+<script>
+(() => {
+    const btnServer = document.getElementById('btn-server');
+    const btnLocal = document.getElementById('btn-local');
+    const btnStop = document.getElementById('btn-stop');
+
+    const serverImg = document.getElementById('server-feed');
+    const localVideo = document.getElementById('local-video');
+    const overlay = document.getElementById('overlay-canvas');
+
+    let stream = null;
+    let running = false;
+    let inferInterval = null;
+
+    function showServer() {
+        // show server MJPEG
+        serverImg.style.display = 'block';
+        localVideo.style.display = 'none';
+        overlay.style.display = 'none';
+        btnStop.style.display = 'none';
+        if (stream) stopLocal();
+    }
+
+    async function startLocal() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            localVideo.srcObject = stream;
+            serverImg.style.display = 'none';
+            localVideo.style.display = 'block';
+            overlay.style.display = 'block';
+            btnStop.style.display = 'inline-block';
+
+            // adjust canvas size to video
+            localVideo.addEventListener('loadedmetadata', () => {
+                overlay.width = localVideo.videoWidth;
+                overlay.height = localVideo.videoHeight;
+                overlay.style.width = '100%';
+            });
+
+            running = true;
+            inferInterval = setInterval(captureAndSend, 500);
+        } catch (e) {
+            alert('Cannot access webcam: ' + e.message);
+        }
+    }
+
+    function stopLocal() {
+        running = false;
+        if (inferInterval) clearInterval(inferInterval);
+        if (stream) {
+            stream.getTracks().forEach(t => t.stop());
+            stream = null;
+        }
+        serverImg.style.display = 'block';
+        localVideo.style.display = 'none';
+        overlay.style.display = 'none';
+        btnStop.style.display = 'none';
+    }
+
+    async function captureAndSend() {
+        if (!running) return;
+        const canvas = document.createElement('canvas');
+        canvas.width = localVideo.videoWidth;
+        canvas.height = localVideo.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(localVideo, 0, 0, canvas.width, canvas.height);
+
+        // send blob to server infer endpoint
+        const t0 = performance.now();
+        canvas.toBlob(async (blob) => {
+            try {
+                const form = new FormData();
+                form.append('file', blob, 'frame.jpg');
+                const resp = await fetch('/api/infer', { method: 'POST', body: form });
+                const t1 = performance.now();
+                const data = await resp.json();
+                // update response time display (ms)
+                respEl.textContent = Math.round(t1 - t0);
+                drawDetections(data);
+            } catch (e) {
+                console.error('Inference error', e);
+            } finally {
+                updateFPS();
+            }
+        }, 'image/jpeg', 0.8);
+    }
+
+    function drawDetections(data) {
+        const ctx = overlay.getContext('2d');
+        // clear
+        ctx.clearRect(0, 0, overlay.width, overlay.height);
+        if (!data || !data.detections) return;
+        // scale might be needed if canvas displayed scaled; coordinates assume original video resolution
+        const threshold = (confSlider.value || 50) / 100;
+        data.detections.forEach(d => {
+            if (!d.bbox) return;
+            const conf = d.confidence || 0;
+            if (conf < threshold) return; // skip low-confidence
+            const [x1,y1,x2,y2] = d.bbox.map(v => Math.round(v));
+            const w = x2 - x1; const h = y2 - y1;
+            const color = d.status === 'attentive' ? 'lime' : (d.type === 'distraction' ? 'orange' : 'red');
+            ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.strokeRect(x1,y1,w,h);
+            const label = `${d.status} ${(conf).toFixed(2)}`;
+            ctx.fillStyle = color; ctx.font = '18px Inter, Arial';
+            ctx.fillText(label, x1+4, Math.max(18, y1-6));
+        });
+        // draw score
+        if (typeof data.class_score !== 'undefined') {
+            ctx.fillStyle = '#fff'; ctx.font = '22px Inter, Arial';
+            ctx.fillText('Score: ' + data.class_score, 10, 28);
+        }
+    }
+
+    const fpsEl = document.getElementById('fps-value');
+    const respEl = document.getElementById('resp-time-value');
+    const confSlider = document.getElementById('conf-threshold');
+    const confValue = document.getElementById('conf-value');
+
+    // FPS / response tracking
+    let lastFrameTime = performance.now();
+    let fpsSmoothed = 0;
+
+    function updateFPS() {
+        const now = performance.now();
+        const dt = now - lastFrameTime || 16;
+        lastFrameTime = now;
+        const instFps = 1000 / dt;
+        fpsSmoothed = fpsSmoothed ? (fpsSmoothed * 0.85 + instFps * 0.15) : instFps;
+        fpsEl.textContent = Math.round(fpsSmoothed);
+    }
+
+    // confidence slider
+    confSlider.addEventListener('input', () => {
+        confValue.textContent = confSlider.value + '%';
+    });
+
+    btnServer.addEventListener('click', showServer);
+    btnLocal.addEventListener('click', startLocal);
+    btnStop.addEventListener('click', stopLocal);
+
+    // default
+    showServer();
+})();
+</script>
 </html>

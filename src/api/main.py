@@ -5,11 +5,13 @@ import sys
 import os
 import threading
 import time
+import numpy as np
 
 # Add src to python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.engine import CogniVisionEngine
+from fastapi import File, UploadFile
 from core.scorer import CogniVisionScorer
 
 app = FastAPI(title="CogniVision Dashboard")
@@ -73,6 +75,22 @@ async def video_feed():
 async def get_stats():
     # Placeholder for historical stats if needed later
     return {"status": "online"}
+@app.post('/api/infer')
+async def infer_image(file: UploadFile = File(...)):
+    """Accepts an uploaded image and returns detection + score JSON.
+    Useful for web UI or remote clients that send frames for inference.
+    """
+    contents = await file.read()
+    nparr = np.frombuffer(contents, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    if img is None:
+        return {"error": "invalid_image"}
+
+    detections = engine.process_frame(img)
+    class_score = scorer.calculate_class_score(detections)
+
+    return {"detections": detections, "class_score": class_score}
+
 
 if __name__ == "__main__":
     import uvicorn
