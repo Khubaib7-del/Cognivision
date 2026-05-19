@@ -1,16 +1,46 @@
+from pathlib import Path
+
 from ultralytics import YOLO
-import cv2
-import torch
+
+from src.config import MODELS_DIR
+
+
+def resolve_detector_model_path(model_name=None):
+    candidate_paths = []
+
+    if model_name:
+        candidate_paths.append(Path(model_name))
+
+    candidate_paths.extend([
+        MODELS_DIR / "detector_behavior_best.pt",
+        MODELS_DIR / "checkpoints" / "yolo_objects_last.pt",
+        Path("D:/EDITH/cognivision_yolo_outputs/best.pt"),
+        Path("D:/EDITH/cognivision_yolo_outputs/last.pt"),
+        Path("yolov8n.pt"),
+    ])
+
+    seen = set()
+    for candidate in candidate_paths:
+        normalized = str(candidate)
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        if candidate.exists():
+            return candidate
+
+    return Path(model_name) if model_name else Path("yolov8n.pt")
 
 class CogniVisionDetector:
     """
     Handles multi-student and object detection using YOLOv8.
     Identifies 'person' and potentially 'cell phone' from COCO dataset.
     """
-    def __init__(self, model_name='yolov8n.pt'):
-        # Load the YOLOv8 task (nano version for speed)
-        self.model = YOLO(model_name)
+    def __init__(self, model_name=None, allowed_labels=None):
+        resolved_model = resolve_detector_model_path(model_name)
+        # Load the trained YOLO checkpoint when available, otherwise fall back safely.
+        self.model = YOLO(str(resolved_model))
         self.classes = self.model.names
+        self.allowed_labels = set(allowed_labels) if allowed_labels else None
         
     def detect_students(self, frame):
         """
@@ -24,8 +54,10 @@ class CogniVisionDetector:
             label = self.classes[cls_id]
             conf = float(box.conf[0])
             
-            # We care about 'person' (ID 0) and 'cell phone' (ID 67)
-            if label in ['person', 'cell phone'] and conf > 0.4:
+            if self.allowed_labels is not None and label not in self.allowed_labels:
+                continue
+
+            if conf > 0.4:
                 coords = box.xyxy[0].tolist() # x1, y1, x2, y2
                 detections.append({
                     'label': label,

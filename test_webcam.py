@@ -14,9 +14,10 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from src.core.pipeline import ProcessingPipeline
 from src.core.scorer import CogniVisionScorer
+from src.config import DETECTOR_MODEL
 
 
-def main(duration=10, display=False, detector_model='yolov8n.pt'):
+def main(duration=10, display=False, detector_model=DETECTOR_MODEL):
     pipeline = ProcessingPipeline(detector_model=detector_model)
     scorer = CogniVisionScorer(phone_penalty=20)
 
@@ -73,6 +74,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--duration', type=int, default=10, help='Duration in seconds')
     parser.add_argument('--display', action='store_true', help='Show display windows')
-    parser.add_argument('--model', type=str, default='yolov8n.pt', help='Detector model file')
+    parser.add_argument('--model', type=str, default=DETECTOR_MODEL, help='Detector model file')
     args = parser.parse_args()
     raise SystemExit(main(duration=args.duration, display=args.display, detector_model=args.model))

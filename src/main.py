@@ -2,11 +2,11 @@ import cv2
 import sys
 import os
 
-# Add src to python path for internal imports
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Add project root to python path for internal imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.engine import CogniVisionEngine
-from core.scorer import CogniVisionScorer
+from src.core.engine import CogniVisionEngine
+from src.core.scorer import CogniVisionScorer
 
 def main():
     print("--- CogniVision: Live Multi-Student Monitoring ---")

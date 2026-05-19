@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, Query
 from fastapi.responses import StreamingResponse
 import cv2
 import sys
@@ -7,56 +7,40 @@ import threading
 import time
 import numpy as np
 
-# Add src to python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add project root to python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from core.engine import CogniVisionEngine
 from fastapi import File, UploadFile
-from core.scorer import CogniVisionScorer
+from src.core.pipeline import ProcessingPipeline
+from src.core.scorer import CogniVisionScorer
+from src.config import CLASSIFIER_MODEL
 
 app = FastAPI(title="CogniVision Dashboard")
 
-# Initialize AI Engine and Scorer
-engine = CogniVisionEngine()
+# Initialize AI Pipeline and Scorer with trained classifier
+pipeline = ProcessingPipeline(classifier_weights=CLASSIFIER_MODEL)
 scorer = CogniVisionScorer()
 
 class VideoStreamer:
     def __init__(self):
-        self.cap = cv2.VideoCapture(0)
         self.lock = threading.Lock()
+
+    def _placeholder_frame(self, message: str = "Use Local Webcam"):
+        frame = np.zeros((480, 640, 3), dtype=np.uint8)
+        cv2.rectangle(frame, (0, 0), (639, 479), (45, 45, 90), thickness=-1)
+        cv2.putText(frame, "CogniVision", (40, 120), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (129, 140, 248), 3)
+        cv2.putText(frame, message, (40, 190), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2)
+        cv2.putText(frame, "Click 'Use Local Webcam' button to start", (40, 235), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (200, 200, 220), 2)
+        return frame
         
     def get_frame(self):
         while True:
-            success, frame = self.cap.read()
-            if not success:
-                break
-            
-            # Run AI Engine
-            detections = engine.process_frame(frame)
-            class_score = scorer.calculate_class_score(detections)
-            
-            # Draw on frame
-            for det in detections:
-                x1, y1, x2, y2 = det['bbox']
-                status = det['status']
-                conf = det['confidence']
-                color = (0, 255, 0) if status == 'attentive' else (0, 0, 255)
-                
-                label_text = f"{det['type'].upper()}: {status} ({conf:.1%})"
-                cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-                cv2.putText(frame, label_text, (x1, y1 - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-            
-            # Overlay Score
-            cv2.putText(frame, f"ATTENTION: {class_score}%", (20, 50),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 3)
-            
-            # Encode as JPEG
+            frame = self._placeholder_frame()
             ret, buffer = cv2.imencode('.jpg', frame)
             frame_bytes = buffer.tobytes()
-            
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+            time.sleep(1.0)
 
 streamer = VideoStreamer()
 
@@ -73,10 +57,27 @@ async def video_feed():
 
 @app.get("/api/stats")
 async def get_stats():
-    # Placeholder for historical stats if needed later
     return {"status": "online"}
+
+@app.post("/api/report")
+async def report():
+    """Generate report endpoint."""
+    return {
+        "status": "success",
+        "message": "Report generated (database integration coming soon)",
+        "timestamp": time.time()
+    }
+
+@app.post("/api/reset")
+async def reset():
+    """Reset engine endpoint."""
+    return {
+        "status": "success",
+        "message": "Pipeline reset",
+        "timestamp": time.time()
+    }
 @app.post('/api/infer')
-async def infer_image(file: UploadFile = File(...)):
+async def infer_image(file: UploadFile = File(...), confidence_threshold: float = Query(0.5, ge=0.0, le=1.0)):
     """Accepts an uploaded image and returns detection + score JSON.
     Useful for web UI or remote clients that send frames for inference.
     """
@@ -86,10 +87,19 @@ async def infer_image(file: UploadFile = File(...)):
     if img is None:
         return {"error": "invalid_image"}
 
-    detections = engine.process_frame(img)
-    class_score = scorer.calculate_class_score(detections)
+    detections = pipeline.process_frame(img)
+    filtered_detections = [
+        detection
+        for detection in detections
+        if detection.get("confidence", 0.0) >= confidence_threshold
+    ]
+    class_score = scorer.calculate_class_score(filtered_detections)
 
-    return {"detections": detections, "class_score": class_score}
+    return {
+        "detections": filtered_detections,
+        "class_score": class_score,
+        "confidence_threshold": confidence_threshold,
+    }
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ project:
   version: 1.0.0
 
 models:
-  detector: "yolov8n.pt"
+  detector: "data/models/detector_behavior_best.pt"
   classifier: "attention_classifier_best.pth"
   input_size: 128
 

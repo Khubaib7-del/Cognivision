@@ -34,10 +34,28 @@ venv/
 ENV/
 
 # Data & Logs
-data/
+data/raw/
+data/processed/
 logs/*.log
 *.ipynb_checkpoints
 temp/
+temp_proposal/
+
+# Model Checkpoints (too large for submission)
+data/models/*.pth
+data/models/*.pt
+data/models/*.joblib
+data/models/checkpoints/
+data/models/cognivision_outputs/
+src/models/*.pth
+src/models/*.pt
+*.pth
+*.pt
+
+# Kaggle outputs
+*_outputs.zip
+runs/
+yolov8n.pt
 
 # OS
 .DS_Store

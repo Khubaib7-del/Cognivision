@@ -4,8 +4,9 @@ import numpy as np
 from PIL import Image
 from torchvision import transforms
 
-from models.detector import CogniVisionDetector
-from models.attention_classifier import AttentionClassifier
+from src.models.detector import CogniVisionDetector
+from src.models.attention_classifier import AttentionClassifier
+from src.config import STUDENT_LABELS
 
 class CogniVisionEngine:
     """
@@ -54,7 +55,7 @@ class CogniVisionEngine:
             label = det['label']
             bbox = det['bbox']
             
-            if label == 'person':
+            if label.lower() in [s.lower() for s in STUDENT_LABELS]:
                 # B. Crop face area (Improved: top 45% for better eye/face coverage)
                 x1, y1, x2, y2 = bbox
                 h = y2 - y1

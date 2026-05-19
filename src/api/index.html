@@ -22,10 +22,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow-x: hidden;
         }
 
         nav {
-            width: 100%;
+            width: min(1200px, calc(100% - 2rem));
             padding: 2rem;
             display: flex;
             justify-content: space-between;
@@ -42,12 +43,12 @@
         }
 
         .container {
-            width: 90%;
-            max-width: 1200px;
+            width: min(1200px, calc(100% - 2rem));
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
             gap: 2rem;
-            padding: 2rem;
+            padding: 0 0 2rem 0;
+            box-sizing: border-box;
         }
 
         .glass-panel {
@@ -61,6 +62,8 @@
 
         .video-feed {
             width: 100%;
+            aspect-ratio: 4 / 3;
+            position: relative;
             border-radius: 16px;
             overflow: hidden;
             background: black;
@@ -68,8 +71,21 @@
         }
 
         .video-feed img {
-            width: 100%;
             display: block;
+        }
+
+        .video-feed img,
+        .video-feed video,
+        .video-feed canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-feed canvas {
+            pointer-events: none;
         }
 
         .stats-panel {
@@ -116,6 +132,69 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
         }
+
+        .camera-status {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            min-height: 1.25rem;
+        }
+
+        .camera-status.error {
+            color: #fca5a5;
+        }
+
+        @media (max-width: 900px) {
+            nav {
+                padding: 1.25rem 1rem;
+            }
+
+            .container {
+                grid-template-columns: 1fr;
+                width: min(100%, calc(100% - 1rem));
+                gap: 1rem;
+            }
+
+            .video-feed {
+                aspect-ratio: 16 / 9;
+            }
+
+            .glass-panel {
+                padding: 1.1rem;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 560px) {
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            h2 {
+                font-size: 1.1rem;
+            }
+
+            .container {
+                width: calc(100% - 0.75rem);
+            }
+
+            .btn {
+                padding: 0.8rem 1rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -134,11 +213,12 @@
                 <canvas id="overlay-canvas" style="display:none; position:relative; width:100%;"></canvas>
             </div>
 
-            <div style="margin-top:0.75rem; display:flex; gap:0.5rem;">
+            <div style="margin-top:0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
                 <button class="btn" id="btn-server">Use Server Feed</button>
                 <button class="btn" id="btn-local">Use Local Webcam</button>
                 <button class="btn" id="btn-stop" style="background:#ef4444; display:none;">Stop Local</button>
             </div>
+            <div id="camera-status" class="camera-status">Server feed is active.</div>
         </div>
 
         <!-- Stats Section -->
@@ -149,19 +229,27 @@
                     <div class="stat-value"><span id="fps-value">--</span> FPS</div>
                     <div class="stat-label" style="margin-top:8px;">Last Response</div>
                     <div class="stat-value"><span id="resp-time-value">--</span> ms</div>
+                    <div class="stat-label" style="margin-top:8px;">Confidence Applied</div>
+                    <div class="stat-value" style="font-size: 1.2rem;"><span id="applied-threshold">50</span>%</div>
                 </div>
                 <div class="stat-card" style="margin-top: 1rem;">
                     <div class="stat-label">AI Model</div>
-                    <div class="stat-value" style="font-size: 1rem; color: #c084fc;">Custom CNN + YOLOv8</div>
+                    <div class="stat-value" style="font-size: 1rem; color: #c084fc;">RGB EfficientNet-B2 + YOLOv8</div>
                 </div>
             </div>
 
             <div class="glass-panel">
                 <h2>Quick Actions</h2>
-                <div style="display:flex; gap:0.5rem; align-items:center;">
-                    <label style="flex:1; color:#94a3b8; font-size:0.9rem;">Confidence Threshold</label>
-                    <input id="conf-threshold" type="range" min="0" max="100" value="50" style="width:140px;"> 
-                    <div id="conf-value" style="width:42px; text-align:right; color:#cbd5e1;">50%</div>
+                <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                    <label style="flex:1; color:#94a3b8; font-size:0.9rem; min-width:140px;">Confidence Threshold</label>
+                    <input id="conf-threshold" type="range" min="20" max="95" step="5" value="70" style="width:160px;">
+                    <div id="conf-value" style="width:42px; text-align:right; color:#cbd5e1;">70%</div>
+                </div>
+                <div style="display:flex; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
+                    <button class="btn threshold-preset" data-value="40" style="padding:0.5rem 0.85rem;">40%</button>
+                    <button class="btn threshold-preset" data-value="60" style="padding:0.5rem 0.85rem;">60%</button>
+                    <button class="btn threshold-preset" data-value="70" style="padding:0.5rem 0.85rem;">70%</button>
+                    <button class="btn threshold-preset" data-value="85" style="padding:0.5rem 0.85rem;">85%</button>
                 </div>
                 <button class="btn" style="width: 100%; margin-top:0.75rem;">DOWNLOAD REPORT</button>
                 <button class="btn" style="width: 100%; margin-top: 0.5rem; background: transparent; border: 1px solid var(--primary);">RESET ENGINE</button>
@@ -174,14 +262,29 @@
     const btnServer = document.getElementById('btn-server');
     const btnLocal = document.getElementById('btn-local');
     const btnStop = document.getElementById('btn-stop');
+    const fpsEl = document.getElementById('fps-value');
+    const respEl = document.getElementById('resp-time-value');
+    const confSlider = document.getElementById('conf-threshold');
+    const confValue = document.getElementById('conf-value');
+    const appliedThresholdEl = document.getElementById('applied-threshold');
 
     const serverImg = document.getElementById('server-feed');
     const localVideo = document.getElementById('local-video');
     const overlay = document.getElementById('overlay-canvas');
+    const cameraStatus = document.getElementById('camera-status');
 
     let stream = null;
     let running = false;
     let inferInterval = null;
+    let inFlight = false;
+    let requestCount = 0;
+    let fpsWindowStart = performance.now();
+    let lastResponseMs = null;
+
+    function setCameraStatus(message, isError = false) {
+        cameraStatus.textContent = message;
+        cameraStatus.classList.toggle('error', isError);
+    }
 
     function showServer() {
         // show server MJPEG
@@ -189,35 +292,53 @@
         localVideo.style.display = 'none';
         overlay.style.display = 'none';
         btnStop.style.display = 'none';
+        setCameraStatus('Server feed is active. Switch to Local Webcam to test live camera input.');
         if (stream) stopLocal();
     }
 
     async function startLocal() {
         try {
+            setCameraStatus('Requesting camera access...');
+
+            if (!window.isSecureContext) {
+                throw new Error('Camera access requires localhost or HTTPS');
+            }
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error('This browser does not support camera access');
+            }
+
             stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
             localVideo.srcObject = stream;
+            localVideo.muted = true;
             serverImg.style.display = 'none';
             localVideo.style.display = 'block';
             overlay.style.display = 'block';
             btnStop.style.display = 'inline-block';
+            setCameraStatus('Local webcam is active. A higher confidence threshold will reduce false positives.');
 
             // adjust canvas size to video
-            localVideo.addEventListener('loadedmetadata', () => {
+            localVideo.onloadedmetadata = () => {
                 overlay.width = localVideo.videoWidth;
                 overlay.height = localVideo.videoHeight;
                 overlay.style.width = '100%';
-            });
+            };
+
+            await localVideo.play().catch(() => {});
 
             running = true;
-            inferInterval = setInterval(captureAndSend, 500);
+            inferLoop();
         } catch (e) {
-            alert('Cannot access webcam: ' + e.message);
+            stopLocal(false);
+            setCameraStatus(`Cannot access webcam: ${e.message}`, true);
         }
     }
 
-    function stopLocal() {
+    function stopLocal(updateStatus = true) {
         running = false;
-        if (inferInterval) clearInterval(inferInterval);
+        if (inferInterval) clearTimeout(inferInterval);
+        inferInterval = null;
+        inFlight = false;
         if (stream) {
             stream.getTracks().forEach(t => t.stop());
             stream = null;
@@ -226,10 +347,18 @@
         localVideo.style.display = 'none';
         overlay.style.display = 'none';
         btnStop.style.display = 'none';
+        if (updateStatus) {
+            setCameraStatus('Server feed is active.');
+        }
     }
 
-    async function captureAndSend() {
+    async function inferLoop() {
         if (!running) return;
+        if (inFlight) {
+            inferInterval = setTimeout(inferLoop, 75);
+            return;
+        }
+        inFlight = true;
         const canvas = document.createElement('canvas');
         canvas.width = localVideo.videoWidth;
         canvas.height = localVideo.videoHeight;
@@ -242,16 +371,25 @@
             try {
                 const form = new FormData();
                 form.append('file', blob, 'frame.jpg');
-                const resp = await fetch('/api/infer', { method: 'POST', body: form });
+                const threshold = Number(confSlider.value) / 100;
+                const resp = await fetch(`/api/infer?confidence_threshold=${threshold.toFixed(2)}`, {
+                    method: 'POST',
+                    body: form
+                });
                 const t1 = performance.now();
                 const data = await resp.json();
                 // update response time display (ms)
-                respEl.textContent = Math.round(t1 - t0);
+                lastResponseMs = Math.round(t1 - t0);
+                respEl.textContent = lastResponseMs;
+                appliedThresholdEl.textContent = Math.round(threshold * 100);
                 drawDetections(data);
+                requestCount += 1;
             } catch (e) {
                 console.error('Inference error', e);
             } finally {
+                inFlight = false;
                 updateFPS();
+                inferInterval = setTimeout(inferLoop, 0);
             }
         }, 'image/jpeg', 0.8);
     }
@@ -262,54 +400,165 @@
         ctx.clearRect(0, 0, overlay.width, overlay.height);
         if (!data || !data.detections) return;
         // scale might be needed if canvas displayed scaled; coordinates assume original video resolution
-        const threshold = (confSlider.value || 50) / 100;
+        const studentThreshold = (confSlider.value || 70) / 100;
+        const objectThreshold = Math.min(studentThreshold, 0.25);
+        let visibleCount = 0;
         data.detections.forEach(d => {
-            if (!d.bbox) return;
+            const box = d.face_bbox || d.bbox;
+            if (!box) return;
             const conf = d.confidence || 0;
+            const isObjectLike = d.type === 'distraction' || d.type === 'object' || d.status === 'using mobile' || d.status === 'phone_detected';
+            const threshold = isObjectLike ? objectThreshold : studentThreshold;
             if (conf < threshold) return; // skip low-confidence
-            const [x1,y1,x2,y2] = d.bbox.map(v => Math.round(v));
+            visibleCount += 1;
+            const [x1,y1,x2,y2] = box.map(v => Math.round(v));
             const w = x2 - x1; const h = y2 - y1;
-            const color = d.status === 'attentive' ? 'lime' : (d.type === 'distraction' ? 'orange' : 'red');
+            let color = '#22c55e';
+            if (d.type === 'student') {
+                color = d.status === 'attentive' ? '#22c55e' : d.status === 'distracted' ? '#f59e0b' : '#94a3b8';
+            } else if (d.type === 'distraction') {
+                color = '#ef4444';
+            } else if (d.status === 'leaning to copy') {
+                color = '#06b6d4';
+            } else if (d.status === 'looking around') {
+                color = '#f97316';
+            } else if (d.status === 'sharing answers') {
+                color = '#8b5cf6';
+            } else if (d.status === 'using mobile') {
+                color = '#ef4444';
+            } else if (d.status === 'phone_detected') {
+                color = '#ef4444';
+            } else if (d.status === 'attentive') {
+                color = '#22c55e';
+            } else if (d.status === 'distracted') {
+                color = '#f59e0b';
+            } else if (d.status === 'unknown') {
+                color = '#94a3b8';
+            }
             ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.strokeRect(x1,y1,w,h);
-            const label = `${d.status} ${(conf).toFixed(2)}`;
-            ctx.fillStyle = color; ctx.font = '18px Inter, Arial';
-            ctx.fillText(label, x1+4, Math.max(18, y1-6));
+            
+            // Draw labels: object type at TOP-RIGHT, attention status below at top-left
+            ctx.fillStyle = color; 
+            ctx.font = 'bold 14px Inter, Arial';
+            ctx.textBaseline = 'top';
+            
+            // First line at TOP-RIGHT: object type (PERSON, PHONE, etc)
+            const objectLabel = d.type === 'student' ? 'PERSON' : (d.object_label || d.type || 'UNKNOWN');
+            const objectText = String(objectLabel).toUpperCase();
+            const textMetrics = ctx.measureText(objectText);
+            const textWidth = textMetrics.width;
+            // Position at top-right, with padding
+            ctx.fillText(objectText, x2 - textWidth - 4, Math.max(2, y1 - 18));
+            
+            // For students, draw attention label OUTSIDE the box at top-left with confidence.
+            if (d.type === 'student') {
+                const rawStatus = String(d.status || d.label || 'unknown').toLowerCase();
+                const attentionLabel = rawStatus === 'attentive'
+                    ? 'ATTENTIVE'
+                    : rawStatus === 'distracted'
+                        ? 'DISTRACTED'
+                        : 'UNKNOWN';
+                const attentionConf = Number(d.confidence || 0).toFixed(2);
+                const statusText = `${attentionLabel} ${attentionConf}`;
+                const statusY = Math.max(2, y1 - 18);
+                // subtle backdrop for readability on bright frames
+                const statusWidth = ctx.measureText(statusText).width;
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+                ctx.fillRect(x1 + 2, statusY - 1, statusWidth + 6, 18);
+                ctx.fillStyle = color;
+                ctx.fillText(statusText, x1 + 4, statusY);
+            } else {
+                // Non-student objects keep their own top-left label if different from object text.
+                const statusLabel = d.label || d.status;
+                if (statusLabel && String(statusLabel).toLowerCase() !== 'person' && String(statusLabel).toUpperCase() !== objectText) {
+                    const statusText = `${String(statusLabel).toUpperCase()} ${(conf).toFixed(2)}`;
+                    ctx.fillText(statusText, x1 + 4, Math.max(2, y1 - 18));
+                }
+            }
+            ctx.textBaseline = 'alphabetic';
         });
         // draw score
         if (typeof data.class_score !== 'undefined') {
             ctx.fillStyle = '#fff'; ctx.font = '22px Inter, Arial';
             ctx.fillText('Score: ' + data.class_score, 10, 28);
+            ctx.font = '16px Inter, Arial';
+            ctx.fillText('Threshold: ' + Math.round(studentThreshold * 100) + '%', 10, 52);
+            ctx.fillText('Visible detections: ' + visibleCount, 10, 74);
+        }
+        if (visibleCount === 0) {
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = '18px Inter, Arial';
+            ctx.fillText('No detections above threshold', 10, 102);
         }
     }
 
-    const fpsEl = document.getElementById('fps-value');
-    const respEl = document.getElementById('resp-time-value');
-    const confSlider = document.getElementById('conf-threshold');
-    const confValue = document.getElementById('conf-value');
-
-    // FPS / response tracking
-    let lastFrameTime = performance.now();
+    // FPS / response tracking based on completed inference requests per window.
     let fpsSmoothed = 0;
 
     function updateFPS() {
         const now = performance.now();
-        const dt = now - lastFrameTime || 16;
-        lastFrameTime = now;
-        const instFps = 1000 / dt;
-        fpsSmoothed = fpsSmoothed ? (fpsSmoothed * 0.85 + instFps * 0.15) : instFps;
+        const elapsed = now - fpsWindowStart;
+        if (elapsed >= 1000) {
+            const instFps = (requestCount * 1000) / elapsed;
+            fpsSmoothed = fpsSmoothed ? (fpsSmoothed * 0.7 + instFps * 0.3) : instFps;
+            fpsWindowStart = now;
+            requestCount = 0;
+        }
         fpsEl.textContent = Math.round(fpsSmoothed);
+        if (lastResponseMs !== null) {
+            respEl.textContent = lastResponseMs;
+        }
     }
 
     // confidence slider
     confSlider.addEventListener('input', () => {
         confValue.textContent = confSlider.value + '%';
+        appliedThresholdEl.textContent = confSlider.value;
+    });
+
+    document.querySelectorAll('.threshold-preset').forEach((button) => {
+        button.addEventListener('click', () => {
+            confSlider.value = button.dataset.value;
+            confValue.textContent = button.dataset.value + '%';
+            appliedThresholdEl.textContent = button.dataset.value;
+        });
     });
 
     btnServer.addEventListener('click', showServer);
     btnLocal.addEventListener('click', startLocal);
     btnStop.addEventListener('click', stopLocal);
 
+    // Report and Reset button handlers
+    document.querySelectorAll('.btn').forEach(btn => {
+        if (btn.textContent.includes('REPORT')) {
+            btn.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/api/report', { method: 'POST' });
+                    const data = await response.json();
+                    alert(data.message || 'Report generated successfully!');
+                } catch (e) {
+                    alert('Report generation: ' + e.message);
+                }
+            });
+        }
+        if (btn.textContent.includes('RESET')) {
+            btn.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/api/reset', { method: 'POST' });
+                    const data = await response.json();
+                    alert(data.message || 'Engine reset successfully!');
+                    location.reload();
+                } catch (e) {
+                    alert('Engine reset: ' + e.message);
+                }
+            });
+        }
+    });
+
     // default
+    confSlider.value = 70;
+    confValue.textContent = '70%';
+    appliedThresholdEl.textContent = '70';
     showServer();
 })();
 </script>
