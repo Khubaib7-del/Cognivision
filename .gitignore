@@ -49,13 +49,17 @@ data/models/checkpoints/
 data/models/cognivision_outputs/
 src/models/*.pth
 src/models/*.pt
-*.pth
-*.pt
 
 # Kaggle outputs
 *_outputs.zip
 runs/
-yolov8n.pt
+
+# Kaggle epoch checkpoints (only keep best)
+data/kaggle_outputs/cognivision_outputs/efficientnet_attention_epoch_*.pth
+
+# Allow deployment model weights
+!data/kaggle_outputs/cognivision_outputs/efficientnet_attention_best.pth
+!yolov8n.pt
 
 # OS
 .DS_Store

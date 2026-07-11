@@ -104,5 +104,5 @@ async def infer_image(file: UploadFile = File(...), confidence_threshold: float 
 
 if __name__ == "__main__":
     import uvicorn
-    # Changed to 8001 to avoid port conflicts on Windows
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    port = int(os.environ.get("PORT", 8001))
+    uvicorn.run(app, host="0.0.0.0", port=port)

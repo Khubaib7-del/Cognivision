@@ -1,0 +1,11 @@
+.git
+.venv
+.venv-1
+__pycache__
+*.pyc
+data/raw
+data/processed
+logs
+temp
+*.egg-info
+.env

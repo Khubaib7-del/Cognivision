@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 # Project Root
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -11,13 +12,18 @@ MODELS_DIR = DATA_DIR / "models"
 CHECKPOINTS_DIR = MODELS_DIR / "checkpoints"
 LOGS_DIR = PROJECT_ROOT / "logs"
 
-# Model Configuration - RESTRUCTURED
-# Using COCO model for person + object detection
-# Using custom trained model for behavior detection
-# Using trained RGB EfficientNet from Kaggle outputs for attention classification
-DETECTOR_MODEL = "yolov8n.pt"  # COCO person/object detector
-BEHAVIOR_DETECTOR_MODEL = Path(r"D:\EDITH\cognivision_yolo_outputs\cognivision_yolo\objects_v1\weights\best.pt")  # Custom behavior detector
-CLASSIFIER_MODEL = Path(r"D:\EDITH\cognivision_RGB_outputs\efficientnet_attention_best_RGB.pth")  # Kaggle-trained EfficientNet RGB checkpoint
+# Model Configuration
+DETECTOR_MODEL = "yolov8n.pt"
+
+_behavior_model_env = os.environ.get("BEHAVIOR_MODEL_PATH")
+BEHAVIOR_DETECTOR_MODEL = Path(_behavior_model_env) if _behavior_model_env else (
+    PROJECT_ROOT / "data" / "kaggle_outputs" / "cognivision_yolo" / "objects_v1" / "weights" / "best.pt"
+)
+
+_classifier_model_env = os.environ.get("CLASSIFIER_MODEL_PATH")
+CLASSIFIER_MODEL = Path(_classifier_model_env) if _classifier_model_env else (
+    PROJECT_ROOT / "data" / "kaggle_outputs" / "cognivision_outputs" / "efficientnet_attention_best.pth"
+)
 CLASSIFIER_INPUT_SIZE = 224  # EfficientNet requires 224x224 input
 # Explicit class-index mapping used by the loaded classifier checkpoint.
 # Index 0 -> ATTENTIVE, Index 1 -> DISTRACTED for current RGB model.
