@@ -3,275 +3,468 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CogniVision | AI Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#070a18">
+    <title>CogniVision — Attention Intelligence</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='8' y1='8' x2='56' y2='56'%3E%3Cstop stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='18' fill='%23070a18'/%3E%3Cpath d='M8 32s9-15 24-15 24 15 24 15-9 15-24 15S8 32 8 32Z' fill='none' stroke='url(%23g)' stroke-width='5'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%23a3e635'/%3E%3Ccircle cx='35' cy='29' r='3' fill='white'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4f46e5;
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
+            color-scheme: dark;
+            --bg: #070a18;
+            --surface: #0c1024;
+            --surface-2: #11162e;
+            --surface-3: #171d38;
+            --line: rgba(165, 180, 252, .14);
+            --line-bright: rgba(103, 232, 249, .32);
+            --text: #f7f8ff;
+            --muted: #8d96b8;
+            --violet: #8b5cf6;
+            --violet-soft: #a78bfa;
+            --cyan: #22d3ee;
+            --lime: #a3e635;
+            --amber: #fbbf24;
+            --danger: #fb7185;
+            --display: 'Manrope', system-ui, sans-serif;
+            --mono: 'Space Mono', monospace;
         }
 
+        * { box-sizing: border-box; }
+        html { scrollbar-width: none; }
+        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; height: 0; }
         body {
             margin: 0;
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            color: white;
+            min-width: 320px;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             overflow-x: hidden;
+            scrollbar-width: none;
+            font-family: var(--display);
+            color: var(--text);
+            background:
+                radial-gradient(circle at 12% 0%, rgba(139, 92, 246, .14), transparent 29rem),
+                radial-gradient(circle at 92% 90%, rgba(34, 211, 238, .08), transparent 32rem),
+                var(--bg);
         }
+        button, input { font: inherit; }
+        button { border: 0; cursor: pointer; }
+        button:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
 
-        nav {
-            width: min(1200px, calc(100% - 2rem));
-            padding: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-sizing: border-box;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(to right, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .container {
-            width: min(1200px, calc(100% - 2rem));
+        .intro-loader {
+            position: fixed;
+            z-index: 100;
+            inset: 0;
             display: grid;
-            grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
-            gap: 2rem;
-            padding: 0 0 2rem 0;
-            box-sizing: border-box;
-        }
-
-        .glass-panel {
-            background: var(--glass);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 1.5rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-
-        .video-feed {
-            width: 100%;
-            aspect-ratio: 4 / 3;
-            position: relative;
-            border-radius: 16px;
+            place-items: center;
             overflow: hidden;
-            background: black;
-            border: 1px solid var(--border);
+            background:
+                radial-gradient(circle at 50% 50%, rgba(139, 92, 246, .16), transparent 24rem),
+                #050713;
+            clip-path: circle(150vmax at 50% 50%);
+            animation: intro-release .9s 2.15s cubic-bezier(.76, 0, .24, 1) forwards;
         }
-
-        .video-feed img {
-            display: block;
-        }
-
-        .video-feed img,
-        .video-feed video,
-        .video-feed canvas {
+        .intro-loader::before {
+            content: '';
             position: absolute;
             inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            opacity: .22;
+            background-image:
+                linear-gradient(rgba(103, 232, 249, .08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(103, 232, 249, .08) 1px, transparent 1px);
+            background-size: 52px 52px;
+            mask-image: radial-gradient(circle, black, transparent 68%);
         }
-
-        .video-feed canvas {
-            pointer-events: none;
+        .intro-loader::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 18%, var(--cyan), transparent 82%);
+            box-shadow: 0 0 24px rgba(34, 211, 238, .7);
+            animation: intro-scan 1.6s .25s cubic-bezier(.4, 0, .2, 1) both;
         }
+        .intro-content { position: relative; display: grid; justify-items: center; text-align: center; }
+        .intro-symbol { position: relative; width: 132px; height: 132px; display: grid; place-items: center; }
+        .intro-ring { position: absolute; border: 1px solid rgba(103, 232, 249, .2); border-radius: 50%; }
+        .intro-ring.one { inset: 0; border-top-color: var(--cyan); border-right-color: transparent; animation: intro-spin 1.55s cubic-bezier(.4, 0, .2, 1) both; }
+        .intro-ring.two { inset: 13px; border-color: rgba(139, 92, 246, .28); border-bottom-color: var(--violet-soft); border-left-color: transparent; animation: intro-spin-reverse 1.3s .08s cubic-bezier(.4, 0, .2, 1) both; }
+        .intro-logo { width: 86px; height: 86px; filter: drop-shadow(0 0 26px rgba(34, 211, 238, .22)); animation: intro-focus .8s .2s cubic-bezier(.16, 1, .3, 1) both; }
+        .intro-eye-path { stroke-dasharray: 140; stroke-dashoffset: 140; animation: intro-draw .9s .25s ease-out forwards; }
+        .intro-pupil { transform-origin: center; animation: intro-pupil .55s .78s cubic-bezier(.16, 1.4, .3, 1) both; }
+        .intro-wordmark { margin-top: 20px; overflow: hidden; font-size: clamp(23px, 3vw, 31px); font-weight: 800; letter-spacing: -.045em; }
+        .intro-wordmark span { display: inline-block; transform: translateY(120%); animation: intro-word .6s .92s cubic-bezier(.16, 1, .3, 1) forwards; }
+        .intro-wordmark em { color: var(--cyan); font-style: normal; }
+        .intro-loading { width: 168px; margin-top: 16px; color: var(--muted); font: 8px var(--mono); letter-spacing: .2em; text-transform: uppercase; opacity: 0; animation: intro-fade .3s 1.15s forwards; }
+        .intro-track { width: 100%; height: 2px; margin-top: 9px; overflow: hidden; background: rgba(255,255,255,.08); }
+        .intro-progress { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--violet), var(--cyan), var(--lime)); transform: translateX(-100%); animation: intro-progress .75s 1.2s cubic-bezier(.4, 0, .2, 1) forwards; }
 
-        .stats-panel {
+        .app-shell { width: min(1520px, calc(100% - 48px)); margin: 0 auto; }
+        .topbar {
+            min-height: 86px;
             display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            border-bottom: 1px solid var(--line);
         }
-
-        .stat-card {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid var(--border);
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin: 0.5rem 0;
-            color: #818cf8;
-        }
-
-        .stat-label {
-            font-size: 0.875rem;
-            color: #94a3b8;
+        .brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
+        .brand-mark { width: 45px; height: 45px; flex: 0 0 auto; filter: drop-shadow(0 8px 18px rgba(34, 211, 238, .14)); }
+        .brand-name { font-size: 17px; font-weight: 800; letter-spacing: -.035em; }
+        .brand-name span { color: var(--cyan); }
+        .brand-tagline { margin-top: 2px; color: var(--muted); font: 9px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+        .topbar-actions { display: flex; align-items: center; gap: 10px; }
+        .session-pill, .live-pill {
+            min-height: 34px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 13px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--muted);
+            background: rgba(12, 16, 36, .7);
+            font: 10px var(--mono);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: .06em;
         }
+        .live-pill { color: var(--lime); }
+        .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 5px rgba(163, 230, 53, .09); animation: pulse 2s infinite; }
 
-        h2 { margin: 0 0 1rem 0; font-size: 1.25rem; }
+        .workspace { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 18px; padding: 20px 0 30px; }
+        .panel { background: linear-gradient(145deg, rgba(17, 22, 46, .95), rgba(10, 14, 31, .96)); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 22px 70px rgba(0, 0, 0, .24); }
+        .stage-panel { min-width: 0; padding: 16px; }
+        .stage-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 3px 3px 15px; }
+        .section-kicker { color: var(--cyan); font: 9px var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+        h1, h2, p { margin-top: 0; }
+        h1 { margin-bottom: 0; font-size: clamp(21px, 2.1vw, 29px); line-height: 1.12; letter-spacing: -.045em; }
+        h2 { margin-bottom: 0; font-size: 17px; letter-spacing: -.035em; }
+        .source-switch { display: flex; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: rgba(7, 10, 24, .66); }
+        .source-btn { min-height: 34px; padding: 0 13px; border-radius: 8px; color: var(--muted); background: transparent; font-size: 11px; font-weight: 700; transition: .2s ease; }
+        .source-btn:hover { color: var(--text); }
+        .source-btn.active { color: var(--text); background: var(--surface-3); box-shadow: inset 0 0 0 1px var(--line); }
 
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
+        .video-feed { position: relative; width: 100%; aspect-ratio: 16 / 9; min-height: 350px; overflow: hidden; border: 1px solid rgba(103, 232, 249, .16); border-radius: 15px; background: #040610; isolation: isolate; }
+        .video-feed::before { content: ''; position: absolute; z-index: 4; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(7,10,24,.28), transparent 22%, transparent 72%, rgba(7,10,24,.65)); }
+        .video-feed::after { content: ''; position: absolute; z-index: 4; inset: 12px; border: 1px solid rgba(255, 255, 255, .07); border-radius: 9px; pointer-events: none; }
+        .video-feed img, .video-feed video, .video-feed canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .video-feed canvas { z-index: 3; pointer-events: none; }
+        #server-feed { display: none; }
+
+        .empty-state { position: absolute; z-index: 2; inset: 0; display: grid; place-items: center; text-align: center; overflow: hidden; background: radial-gradient(circle at 50% 48%, rgba(139,92,246,.14), transparent 22rem), linear-gradient(145deg, #080c1e, #050713); transition: opacity .25s, visibility .25s; }
+        .empty-state.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .empty-grid { position: absolute; inset: 0; opacity: .2; background-image: linear-gradient(rgba(103,232,249,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(103,232,249,.1) 1px, transparent 1px); background-size: 44px 44px; mask-image: linear-gradient(to bottom, transparent, black 28%, black 72%, transparent); }
+        .orb { position: relative; width: 108px; height: 108px; margin: 0 auto 22px; display: grid; place-items: center; border: 1px solid rgba(34,211,238,.25); border-radius: 50%; background: rgba(34,211,238,.035); box-shadow: 0 0 70px rgba(139,92,246,.2); }
+        .orb::before, .orb::after { content: ''; position: absolute; border-radius: 50%; border: 1px solid rgba(139,92,246,.3); }
+        .orb::before { inset: 12px; }
+        .orb::after { width: 22px; height: 22px; background: var(--lime); border: 8px solid rgba(163,230,53,.1); background-clip: padding-box; box-shadow: 0 0 24px rgba(163,230,53,.45); }
+        .orb-scan { position: absolute; width: 55px; height: 2px; left: 51px; top: 53px; transform-origin: left; background: linear-gradient(90deg, var(--cyan), transparent); animation: scan 3s linear infinite; }
+        .empty-content { position: relative; padding: 30px; }
+        .empty-content h2 { font-size: clamp(20px, 2vw, 27px); }
+        .empty-content p { max-width: 440px; margin: 9px auto 19px; color: var(--muted); font-size: 13px; line-height: 1.7; }
+        .primary-cta { display: inline-flex; align-items: center; gap: 9px; min-height: 42px; padding: 0 18px; border-radius: 11px; background: linear-gradient(135deg, var(--violet), #6d5bea); color: white; font-size: 12px; font-weight: 800; box-shadow: 0 13px 34px rgba(139,92,246,.25); transition: transform .2s, box-shadow .2s; }
+        .primary-cta:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(139,92,246,.34); }
+        .primary-cta svg { width: 16px; height: 16px; }
+
+        .feed-hud { position: absolute; z-index: 5; top: 26px; left: 26px; right: 26px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; opacity: 0; transition: opacity .25s; }
+        .feed-hud.visible { opacity: 1; }
+        .hud-chip { min-height: 28px; display: inline-flex; align-items: center; gap: 7px; padding: 0 10px; border: 1px solid rgba(255,255,255,.13); border-radius: 8px; color: white; background: rgba(5,7,19,.65); backdrop-filter: blur(10px); font: 9px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+        .hud-chip .live-dot { color: var(--danger); width: 6px; height: 6px; box-shadow: none; }
+        .hud-score { color: var(--lime); }
+
+        .stage-footer { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 14px 4px 1px; }
+        .camera-state { min-width: 0; display: flex; align-items: center; gap: 11px; }
+        .state-icon { width: 34px; height: 34px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 10px; color: var(--cyan); background: rgba(34,211,238,.09); }
+        .state-icon svg { width: 16px; }
+        .camera-status { color: var(--muted); font-size: 11px; line-height: 1.45; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .camera-status strong { display: block; color: var(--text); font-size: 12px; }
+        .camera-status.error, .camera-status.error strong { color: var(--danger); }
+        .stop-btn { display: none; min-height: 36px; padding: 0 14px; border: 1px solid rgba(251,113,133,.32); border-radius: 10px; color: var(--danger); background: rgba(251,113,133,.08); font-size: 11px; font-weight: 800; }
+
+        .sidebar { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+        .side-panel { padding: 18px; }
+        .side-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+        .panel-index { color: var(--muted); font: 9px var(--mono); }
+        .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+        .metric { min-width: 0; padding: 12px 10px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.025); }
+        .metric-label { overflow: hidden; color: var(--muted); font: 8px var(--mono); letter-spacing: .05em; text-transform: uppercase; text-overflow: ellipsis; }
+        .metric-value { margin-top: 7px; color: var(--text); font-size: 20px; font-weight: 800; letter-spacing: -.05em; }
+        .metric-value span:last-child { color: var(--muted); font: 8px var(--mono); letter-spacing: 0; }
+        .metric:nth-child(1) .metric-value { color: var(--cyan); }
+        .metric:nth-child(3) .metric-value { color: var(--lime); }
+
+        .attention-card { margin-top: 9px; display: grid; grid-template-columns: 84px minmax(0, 1fr); align-items: center; gap: 13px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(135deg, rgba(139,92,246,.08), rgba(34,211,238,.035)); }
+        .score-ring { --score: 0deg; width: 76px; height: 76px; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--lime) var(--score), rgba(255,255,255,.07) 0); position: relative; transition: background .35s; }
+        .score-ring::before { content: ''; position: absolute; inset: 6px; border-radius: inherit; background: var(--surface); }
+        .score-ring strong { position: relative; font-size: 18px; letter-spacing: -.06em; }
+        .score-copy strong { display: block; margin-bottom: 4px; font-size: 12px; }
+        .score-copy span { color: var(--muted); font-size: 10px; line-height: 1.5; }
+
+        .models { display: flex; gap: 8px; margin-top: 9px; }
+        .model { min-width: 0; flex: 1; display: flex; align-items: center; gap: 9px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.025); }
+        .model-logo { width: 30px; height: 30px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 9px; background: #f7f8ff; overflow: hidden; }
+        .model-logo svg { width: 22px; height: 22px; }
+        .model-copy { min-width: 0; }
+        .model-copy strong, .model-copy span { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .model-copy strong { font-size: 10px; }
+        .model-copy span { margin-top: 2px; color: var(--muted); font: 7px var(--mono); text-transform: uppercase; }
+
+        .threshold-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+        #conf-value { color: var(--cyan); font-size: 24px; font-weight: 800; letter-spacing: -.055em; }
+        .range-wrap { position: relative; padding: 4px 0 3px; }
+        input[type="range"] { width: 100%; height: 5px; margin: 0; display: block; appearance: none; border-radius: 999px; background: linear-gradient(90deg, var(--violet) 66.66%, rgba(255,255,255,.1) 66.66%); }
+        input[type="range"]::-webkit-slider-thumb { width: 18px; height: 18px; appearance: none; border: 4px solid var(--surface); border-radius: 50%; background: var(--cyan); box-shadow: 0 0 0 1px var(--cyan), 0 4px 12px rgba(34,211,238,.3); }
+        input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border: 4px solid var(--surface); border-radius: 50%; background: var(--cyan); }
+        .range-labels { display: flex; justify-content: space-between; margin-top: 8px; color: var(--muted); font: 8px var(--mono); }
+        .thresholds { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 13px; }
+        .threshold-preset { min-width: 0; min-height: 31px; padding: 0 4px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: rgba(255,255,255,.02); font: 9px var(--mono); white-space: nowrap; transition: .2s; }
+        .threshold-preset:hover, .threshold-preset.active { color: var(--text); border-color: rgba(34,211,238,.32); background: rgba(34,211,238,.08); }
+        .tool-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 14px; }
+        .action-btn { min-width: 0; min-height: 37px; padding: 0 8px; border: 1px solid var(--line); border-radius: 10px; color: var(--text); background: var(--surface-3); font-size: 9px; font-weight: 800; letter-spacing: .025em; transition: transform .2s, border-color .2s; }
+        .action-btn:hover { transform: translateY(-1px); border-color: var(--line-bright); }
+        .action-btn.primary { color: #080b19; border-color: transparent; background: var(--cyan); }
+
+        .toast { position: fixed; z-index: 20; right: 22px; bottom: 22px; max-width: min(360px, calc(100% - 44px)); padding: 13px 15px; border: 1px solid var(--line-bright); border-radius: 12px; color: var(--text); background: rgba(12,16,36,.94); box-shadow: 0 18px 50px rgba(0,0,0,.35); backdrop-filter: blur(16px); font-size: 11px; opacity: 0; transform: translateY(12px); pointer-events: none; transition: .25s; }
+        .toast.visible { opacity: 1; transform: none; }
+        .toast.error { border-color: rgba(251,113,133,.45); }
+
+        @keyframes intro-spin { from { opacity: 0; transform: rotate(-160deg) scale(.72); } to { opacity: 1; transform: rotate(135deg) scale(1); } }
+        @keyframes intro-spin-reverse { from { opacity: 0; transform: rotate(150deg) scale(.72); } to { opacity: 1; transform: rotate(-110deg) scale(1); } }
+        @keyframes intro-focus { from { opacity: 0; transform: scale(.65); filter: blur(8px); } to { opacity: 1; transform: scale(1); filter: blur(0) drop-shadow(0 0 26px rgba(34, 211, 238, .22)); } }
+        @keyframes intro-draw { to { stroke-dashoffset: 0; } }
+        @keyframes intro-pupil { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+        @keyframes intro-word { to { transform: translateY(0); } }
+        @keyframes intro-fade { to { opacity: 1; } }
+        @keyframes intro-progress { to { transform: translateX(0); } }
+        @keyframes intro-scan { from { top: 18%; opacity: 0; } 18% { opacity: 1; } 82% { opacity: 1; } to { top: 82%; opacity: 0; } }
+        @keyframes intro-release { 0% { clip-path: circle(150vmax at 50% 50%); } 70% { opacity: 1; clip-path: circle(72px at 50% 50%); } 100% { opacity: 0; visibility: hidden; clip-path: circle(0 at 50% 50%); } }
+        @keyframes pulse { 50% { opacity: .45; } }
+        @keyframes scan { to { transform: rotate(360deg); } }
+        @keyframes enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        .topbar, .workspace { animation: enter .55s cubic-bezier(.2,.8,.2,1) both; }
+        .workspace { animation-delay: .08s; }
+
+        @media (max-width: 1060px) {
+            .workspace { grid-template-columns: 1fr; }
+            .sidebar { display: grid; grid-template-columns: 1fr 1fr; align-items: start; }
         }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        @media (max-width: 700px) {
+            .app-shell { width: min(100% - 22px, 1520px); }
+            .topbar { min-height: 72px; }
+            .brand-tagline, .session-pill { display: none; }
+            .workspace { padding-top: 11px; }
+            .stage-panel { padding: 10px; border-radius: 16px; }
+            .stage-header { align-items: flex-start; flex-direction: column; padding: 4px 3px 12px; }
+            .source-switch { width: 100%; }
+            .source-btn { flex: 1; }
+            .video-feed { min-height: 280px; aspect-ratio: 4 / 3; }
+            .sidebar { display: flex; }
+            .stage-footer { grid-template-columns: minmax(0, 1fr); }
+            .stop-btn { width: 100%; }
+            .camera-status { white-space: normal; }
         }
-
-        .camera-status {
-            margin-top: 0.75rem;
-            font-size: 0.9rem;
-            color: #cbd5e1;
-            min-height: 1.25rem;
+        @media (max-width: 420px) {
+            .brand-mark { width: 39px; height: 39px; }
+            .brand-name { font-size: 15px; }
+            .live-pill { padding: 0 9px; font-size: 8px; }
+            .video-feed { min-height: 315px; }
+            .metrics { gap: 5px; }
+            .metric { padding: 10px 7px; }
+            .metric-value { font-size: 18px; }
+            .models { flex-direction: column; }
         }
-
-        .camera-status.error {
-            color: #fca5a5;
-        }
-
-        @media (max-width: 900px) {
-            nav {
-                padding: 1.25rem 1rem;
-            }
-
-            .container {
-                grid-template-columns: 1fr;
-                width: min(100%, calc(100% - 1rem));
-                gap: 1rem;
-            }
-
-            .video-feed {
-                aspect-ratio: 16 / 9;
-            }
-
-            .glass-panel {
-                padding: 1.1rem;
-            }
-
-            .stat-value {
-                font-size: 2rem;
-            }
-
-            .btn {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 560px) {
-            nav {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-
-            .logo {
-                font-size: 1.2rem;
-            }
-
-            h2 {
-                font-size: 1.1rem;
-            }
-
-            .container {
-                width: calc(100% - 0.75rem);
-            }
-
-            .btn {
-                padding: 0.8rem 1rem;
-            }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+            .intro-loader { animation-delay: 0s !important; }
         }
     </style>
 </head>
 <body>
-    <nav>
-        <div class="logo">COGNIVISION AI</div>
-        <div class="status-badge" style="color: #4ade80;">● SYSTEM LIVE</div>
-    </nav>
-
-    <div class="container">
-        <!-- Live Feed Section -->
-        <div class="glass-panel">
-            <h2>Classroom Monitoring Feed</h2>
-            <div class="video-feed" id="feed-wrapper">
-                <img id="server-feed" src="/video_feed" alt="Live Feed">
-                <video id="local-video" autoplay playsinline style="display:none; width:100%;"></video>
-                <canvas id="overlay-canvas" style="display:none; position:relative; width:100%;"></canvas>
+    <div class="intro-loader" id="intro-loader" role="status" aria-label="Loading CogniVision">
+        <div class="intro-content">
+            <div class="intro-symbol" aria-hidden="true">
+                <span class="intro-ring one"></span>
+                <span class="intro-ring two"></span>
+                <svg class="intro-logo" viewBox="0 0 64 64">
+                    <defs><linearGradient id="intro-gradient" x1="7" y1="9" x2="58" y2="55"><stop stop-color="#8b5cf6"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs>
+                    <rect x="2" y="2" width="60" height="60" rx="18" fill="#11162e" stroke="rgba(165,180,252,.2)"/>
+                    <path class="intro-eye-path" d="M10 32s8.2-13 22-13 22 13 22 13-8.2 13-22 13S10 32 10 32Z" fill="none" stroke="url(#intro-gradient)" stroke-width="3.5"/>
+                    <g class="intro-pupil"><circle cx="32" cy="32" r="7" fill="#a3e635"/><circle cx="34.5" cy="29.5" r="2.3" fill="white"/></g>
+                </svg>
             </div>
-
-            <div style="margin-top:0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
-                <button class="btn" id="btn-server">Use Server Feed</button>
-                <button class="btn" id="btn-local">Use Local Webcam</button>
-                <button class="btn" id="btn-stop" style="background:#ef4444; display:none;">Stop Local</button>
-            </div>
-            <div id="camera-status" class="camera-status">Server feed is active.</div>
-        </div>
-
-        <!-- Stats Section -->
-        <div class="stats-panel">
-            <div class="glass-panel">
-                <div class="stat-card">
-                    <div class="stat-label">System Performance</div>
-                    <div class="stat-value"><span id="fps-value">--</span> FPS</div>
-                    <div class="stat-label" style="margin-top:8px;">Last Response</div>
-                    <div class="stat-value"><span id="resp-time-value">--</span> ms</div>
-                    <div class="stat-label" style="margin-top:8px;">Confidence Applied</div>
-                    <div class="stat-value" style="font-size: 1.2rem;"><span id="applied-threshold">50</span>%</div>
-                </div>
-                <div class="stat-card" style="margin-top: 1rem;">
-                    <div class="stat-label">AI Model</div>
-                    <div class="stat-value" style="font-size: 1rem; color: #c084fc;">RGB EfficientNet-B2 + YOLOv8</div>
-                </div>
-            </div>
-
-            <div class="glass-panel">
-                <h2>Quick Actions</h2>
-                <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-                    <label style="flex:1; color:#94a3b8; font-size:0.9rem; min-width:140px;">Confidence Threshold</label>
-                    <input id="conf-threshold" type="range" min="20" max="95" step="5" value="70" style="width:160px;">
-                    <div id="conf-value" style="width:42px; text-align:right; color:#cbd5e1;">70%</div>
-                </div>
-                <div style="display:flex; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap;">
-                    <button class="btn threshold-preset" data-value="40" style="padding:0.5rem 0.85rem;">40%</button>
-                    <button class="btn threshold-preset" data-value="60" style="padding:0.5rem 0.85rem;">60%</button>
-                    <button class="btn threshold-preset" data-value="70" style="padding:0.5rem 0.85rem;">70%</button>
-                    <button class="btn threshold-preset" data-value="85" style="padding:0.5rem 0.85rem;">85%</button>
-                </div>
-                <button class="btn" style="width: 100%; margin-top:0.75rem;">DOWNLOAD REPORT</button>
-                <button class="btn" style="width: 100%; margin-top: 0.5rem; background: transparent; border: 1px solid var(--primary);">RESET ENGINE</button>
-            </div>
-        </div>
+            <div class="intro-wordmark"><span>Cogni<em>Vision</em></span></div>
+            <div class="intro-loading">Calibrating vision<div class="intro-track"><span class="intro-progress"></span</span>></div></div>
+</em>        </div>
     </div>
-</body>
+
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="brand" aria-label="CogniVision">
+                <svg class="brand-mark" viewBox="0 0 64 64" role="img" aria-label="CogniVision eye logo">
+                    <defs><linearGradient id="brand-gradient" x1="7" y1="9" x2="58" y2="55"><stop stop-color="#8b5cf6"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs>
+                    <rect x="2" y="2" width="60" height="60" rx="18" fill="#11162e" stroke="rgba(165,180,252,.18)"/>
+                    <path d="M10 32s8.2-13 22-13 22 13 22 13-8.2 13-22 13S10 32 10 32Z" fill="none" stroke="url(#brand-gradient)" stroke-width="3.5"/>
+                    <circle cx="32" cy="32" r="7" fill="#a3e635"/>
+                    <circle cx="34.5" cy="29.5" r="2.3" fill="white"/>
+                </svg>
+                <div>
+                    <div class="brand-name">Cogni<span>Vision</span></div>
+                    <div class="brand-tagline">Human attention intelligence</div>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <div class="session-pill">Session · CV-001</div>
+                <div class="live-pill"><span class="live-dot"></span>System online</div>
+            </div>
+        </header>
+
+        <main class="workspace">
+            <section class="panel stage-panel" aria-labelledby="feed-title">
+                <div class="stage-header">
+                    <div>
+                        <div class="section-kicker">Live vision workspace</div>
+                        <h1 id="feed-title">Classroom attention feed</h1>
+                    </div>
+                    <div class="source-switch" aria-label="Camera source">
+                        <button class="source-btn" id="btn-server" type="button">Server feed</button>
+                        <button class="source-btn active" id="btn-local" type="button">My webcam</button>
+                    </div>
+                </div>
+
+                <div class="video-feed" id="feed-wrapper">
+                    <img id="server-feed" src="/video_feed" alt="Server camera feed">
+                    <video id="local-video" autoplay playsinline muted style="display:none"></video>
+                    <canvas id="overlay-canvas" style="display:none"></canvas>
+
+                    <div class="empty-state" id="empty-state">
+                        <div class="empty-grid"></div>
+                        <div class="empty-content">
+                            <div class="orb" aria-hidden="true"><span class="orb-scan"></span></div>
+                            <h2>Turn your camera into an insight layer</h2>
+                            <p>Start a private live analysis to see attention states, detection confidence, and classroom focus in real time.</p>
+                            <button class="primary-cta" id="empty-start" type="button">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.55-2.28A1 1 0 0 1 21 8.62v6.76a1 1 0 0 1-1.45.9L15 14"/><rect x="3" y="6" width="12" height="12" rx="3"/></svg>
+                                Start live analysis
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="feed-hud" id="feed-hud" aria-hidden="true">
+                        <div class="hud-chip"><span class="live-dot"></span><span id="hud-source">Webcam live</span></div>
+                        <div class="hud-chip hud-score">Focus <span id="hud-score">--</span></div>
+                    </div>
+                </div>
+
+                <div class="stage-footer">
+                    <div class="camera-state">
+                        <div class="state-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 10l4.55-2.28A1 1 0 0 1 21 8.62v6.76a1 1 0 0 1-1.45.9L15 14"/><rect x="3" y="6" width="12" height="12" rx="3"/></svg></div>
+                        <div id="camera-status" class="camera-status"><strong>Ready to begin</strong>Your camera stays in this live session and frames are analyzed by the local engine.</div>
+                    </div>
+                    <button class="stop-btn" id="btn-stop" type="button">Stop camera</button>
+                </div>
+            </section>
+
+            <aside class="sidebar" aria-label="Analysis controls">
+                <section class="panel side-panel">
+                    <div class="side-head">
+                        <div><div class="section-kicker">Signal overview</div><h2>Live telemetry</h2></div>
+                        <span class="panel-index">01</span>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric"><div class="metric-label">Throughput</div><div class="metric-value"><span id="fps-value">--</span> <span>FPS</span></div></div>
+                        <div class="metric"><div class="metric-label">Latency</div><div class="metric-value"><span id="resp-time-value">--</span> <span>MS</span></div></div>
+                        <div class="metric"><div class="metric-label">Detected</div><div class="metric-value"><span id="detection-value">0</span> <span>SUBJ</span></div></div>
+                    </div>
+                    <div class="attention-card">
+                        <div class="score-ring" id="score-ring"><strong id="attention-score">--</strong></div>
+                        <div class="score-copy"><strong>Class attention</strong><span id="score-message">Waiting for a live camera signal.</span></div>
+                    </div>
+                </section>
+
+                <section class="panel side-panel">
+                    <div class="side-head">
+                        <div><div class="section-kicker">Inference stack</div><h2>AI models</h2></div>
+                        <span class="panel-index">02</span>
+                    </div>
+                    <div class="models">
+                        <div class="model" title="EfficientNet-B2 image classification model">
+                            <div class="model-logo">
+                                <svg viewBox="0 0 24 24" aria-label="EfficientNet logo"><defs><linearGradient id="tf" x1="4" y1="3" x2="19" y2="21"><stop stop-color="#ffca28"/><stop offset="1" stop-color="#f57c00"/></linearGradient></defs><path d="M4 7.2 12 3v18l-3.2-1.8v-8L4 14V7.2Zm9-2.4 7 4v6.4l-3-1.7V10l-4-2.3V4.8Z" fill="url(#tf)"/></svg>
+                            </div>
+                            <div class="model-copy"><strong>EfficientNet-B2</strong><span>Attention classifier</span></div>
+                        </div>
+                        <div class="model" title="YOLOv8 object detection model">
+                            <div class="model-logo">
+                                <svg viewBox="0 0 24 24" aria-label="YOLO logo"><circle cx="12" cy="12" r="8" fill="none" stroke="#6d28d9" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#22d3ee"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5" stroke="#6d28d9" stroke-width="1.6"/></svg>
+                            </div>
+                            <div class="model-copy"><strong>YOLOv8</strong><span>Object detector</span></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel side-panel">
+                    <div class="side-head">
+                        <div><div class="section-kicker">Detection controls</div><h2>Confidence threshold</h2></div>
+                        <span class="panel-index">03</span>
+                    </div>
+                    <div class="threshold-header">
+                        <div class="score-copy"><strong>Minimum confidence</strong><span>Reduce noise by filtering uncertain results.</span></div>
+                        <div id="conf-value">70%</div>
+                    </div>
+                    <div class="range-wrap">
+                        <input id="conf-threshold" type="range" min="20" max="95" step="5" value="70" aria-label="Confidence threshold">
+                        <div class="range-labels"><span>20%</span><span>95%</span></div>
+                    </div>
+                    <div class="thresholds">
+                        <button class="threshold-preset" data-value="40" type="button">40%</button>
+                        <button class="threshold-preset" data-value="60" type="button">60%</button>
+                        <button class="threshold-preset active" data-value="70" type="button">70%</button>
+                        <button class="threshold-preset" data-value="85" type="button">85%</button>
+                    </div>
+                    <div class="tool-actions">
+                        <button class="action-btn primary" id="report-btn" type="button">Generate report</button>
+                        <button class="action-btn" id="reset-btn" type="button">Reset engine</button>
+                    </div>
+                    <span id="applied-threshold" hidden>70</span>
+                </section>
+            </aside>
+        </main>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
 (() => {
+    const introLoader = document.getElementById('intro-loader');
+    if (introLoader) {
+        const removeIntro = () => introLoader.isConnected && introLoader.remove();
+        introLoader.addEventListener('animationend', event => {
+            if (event.target === introLoader && event.animationName === 'intro-release') removeIntro();
+        });
+        setTimeout(removeIntro, 3600);
+    }
+
     const btnServer = document.getElementById('btn-server');
     const btnLocal = document.getElementById('btn-local');
     const btnStop = document.getElementById('btn-stop');
+    const emptyStart = document.getElementById('empty-start');
+    const emptyState = document.getElementById('empty-state');
+    const feedHud = document.getElementById('feed-hud');
+    const hudSource = document.getElementById('hud-source');
+    const hudScore = document.getElementById('hud-score');
     const fpsEl = document.getElementById('fps-value');
     const respEl = document.getElementById('resp-time-value');
+    const detectionEl = document.getElementById('detection-value');
+    const attentionScoreEl = document.getElementById('attention-score');
+    const scoreMessage = document.getElementById('score-message');
+    const scoreRing = document.getElementById('score-ring');
     const confSlider = document.getElementById('conf-threshold');
     const confValue = document.getElementById('conf-value');
     const appliedThresholdEl = document.getElementById('applied-threshold');
-
     const serverImg = document.getElementById('server-feed');
     const localVideo = document.getElementById('local-video');
     const overlay = document.getElementById('overlay-canvas');
     const cameraStatus = document.getElementById('camera-status');
+    const toast = document.getElementById('toast');
 
     let stream = null;
     let running = false;
@@ -280,81 +473,106 @@
     let requestCount = 0;
     let fpsWindowStart = performance.now();
     let lastResponseMs = null;
+    let toastTimer = null;
 
-    function setCameraStatus(message, isError = false) {
-        cameraStatus.textContent = message;
+    function notify(message, isError = false) {
+        toast.textContent = message;
+        toast.classList.toggle('error', isError);
+        toast.classList.add('visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('visible'), 3200);
+    }
+
+    function setCameraStatus(title, message, isError = false) {
+        cameraStatus.innerHTML = `<strong>${title}</strong>${message}`;
         cameraStatus.classList.toggle('error', isError);
     }
 
+    function setActiveSource(source) {
+        btnServer.classList.toggle('active', source === 'server');
+        btnLocal.classList.toggle('active', source === 'local');
+    }
+
+    function resetTelemetry() {
+        detectionEl.textContent = '0';
+        attentionScoreEl.textContent = '--';
+        hudScore.textContent = '--';
+        scoreRing.style.setProperty('--score', '0deg');
+        scoreMessage.textContent = 'Waiting for a live camera signal.';
+    }
+
     function showServer() {
-        // show server MJPEG
+        if (stream) stopLocal(false, false);
+        running = false;
         serverImg.style.display = 'block';
         localVideo.style.display = 'none';
         overlay.style.display = 'none';
+        emptyState.classList.add('hidden');
+        feedHud.classList.add('visible');
+        hudSource.textContent = 'Server feed';
         btnStop.style.display = 'none';
-        setCameraStatus('Server feed is active. Switch to Local Webcam to test live camera input.');
-        if (stream) stopLocal();
+        setActiveSource('server');
+        setCameraStatus('Server feed active', 'Streaming the camera connected to the inference server.');
     }
 
     async function startLocal() {
+        if (running) return;
         try {
-            setCameraStatus('Requesting camera access...');
+            setActiveSource('local');
+            setCameraStatus('Requesting access', 'Approve the browser camera permission to continue.');
+            if (!window.isSecureContext) throw new Error('Camera access requires localhost or HTTPS');
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('This browser does not support camera access');
 
-            if (!window.isSecureContext) {
-                throw new Error('Camera access requires localhost or HTTPS');
-            }
-
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                throw new Error('This browser does not support camera access');
-            }
-
-            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
             localVideo.srcObject = stream;
             localVideo.muted = true;
             serverImg.style.display = 'none';
             localVideo.style.display = 'block';
             overlay.style.display = 'block';
-            btnStop.style.display = 'inline-block';
-            setCameraStatus('Local webcam is active. A higher confidence threshold will reduce false positives.');
+            emptyState.classList.add('hidden');
+            feedHud.classList.add('visible');
+            hudSource.textContent = 'Webcam live';
+            btnStop.style.display = 'block';
+            setCameraStatus('Live analysis running', 'Attention states and confidence values are updating in real time.');
 
-            // adjust canvas size to video
             localVideo.onloadedmetadata = () => {
                 overlay.width = localVideo.videoWidth;
                 overlay.height = localVideo.videoHeight;
-                overlay.style.width = '100%';
             };
-
             await localVideo.play().catch(() => {});
-
             running = true;
             inferLoop();
-        } catch (e) {
+        } catch (error) {
             stopLocal(false);
-            setCameraStatus(`Cannot access webcam: ${e.message}`, true);
+            setCameraStatus('Camera unavailable', error.message, true);
+            notify(`Cannot access webcam: ${error.message}`, true);
         }
     }
 
-    function stopLocal(updateStatus = true) {
+    function stopLocal(updateStatus = true, showWelcome = true) {
         running = false;
         if (inferInterval) clearTimeout(inferInterval);
         inferInterval = null;
         inFlight = false;
         if (stream) {
-            stream.getTracks().forEach(t => t.stop());
+            stream.getTracks().forEach(track => track.stop());
             stream = null;
         }
-        serverImg.style.display = 'block';
+        localVideo.srcObject = null;
+        serverImg.style.display = 'none';
         localVideo.style.display = 'none';
         overlay.style.display = 'none';
+        feedHud.classList.remove('visible');
         btnStop.style.display = 'none';
-        if (updateStatus) {
-            setCameraStatus('Server feed is active.');
-        }
+        if (showWelcome) emptyState.classList.remove('hidden');
+        setActiveSource('local');
+        resetTelemetry();
+        if (updateStatus) setCameraStatus('Camera stopped', 'Start another private analysis whenever you are ready.');
     }
 
     async function inferLoop() {
         if (!running) return;
-        if (inFlight) {
+        if (inFlight || !localVideo.videoWidth) {
             inferInterval = setTimeout(inferLoop, 75);
             return;
         }
@@ -362,204 +580,204 @@
         const canvas = document.createElement('canvas');
         canvas.width = localVideo.videoWidth;
         canvas.height = localVideo.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(localVideo, 0, 0, canvas.width, canvas.height);
+        const context = canvas.getContext('2d');
+        context.drawImage(localVideo, 0, 0, canvas.width, canvas.height);
+        const startedAt = performance.now();
 
-        // send blob to server infer endpoint
-        const t0 = performance.now();
-        canvas.toBlob(async (blob) => {
+        canvas.toBlob(async blob => {
+            if (!blob) {
+                inFlight = false;
+                inferInterval = setTimeout(inferLoop, 100);
+                return;
+            }
             try {
                 const form = new FormData();
                 form.append('file', blob, 'frame.jpg');
                 const threshold = Number(confSlider.value) / 100;
-                const resp = await fetch(`/api/infer?confidence_threshold=${threshold.toFixed(2)}`, {
-                    method: 'POST',
-                    body: form
-                });
-                const t1 = performance.now();
-                const data = await resp.json();
-                // update response time display (ms)
-                lastResponseMs = Math.round(t1 - t0);
+                const response = await fetch(`/api/infer?confidence_threshold=${threshold.toFixed(2)}`, { method: 'POST', body: form });
+                if (!response.ok) throw new Error(`Inference request failed (${response.status})`);
+                const data = await response.json();
+                lastResponseMs = Math.round(performance.now() - startedAt);
                 respEl.textContent = lastResponseMs;
                 appliedThresholdEl.textContent = Math.round(threshold * 100);
                 drawDetections(data);
                 requestCount += 1;
-            } catch (e) {
-                console.error('Inference error', e);
+            } catch (error) {
+                console.error('Inference error', error);
             } finally {
                 inFlight = false;
                 updateFPS();
                 inferInterval = setTimeout(inferLoop, 0);
             }
-        }, 'image/jpeg', 0.8);
+        }, 'image/jpeg', .82);
+    }
+
+    function drawDetectionBox(ctx, x, y, width, height, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x, y, width, height);
+    }
+
+    function drawDetectionLabel(ctx, text, x, y, color, labelHeight) {
+        const padding = 11;
+        const markerRadius = Math.max(3, labelHeight * .13);
+        const markerSpace = markerRadius * 2 + padding;
+        const labelWidth = ctx.measureText(text).width + padding * 3 + markerSpace;
+        const labelX = Math.max(2, Math.min(x, overlay.width - labelWidth - 2));
+        const labelY = Math.max(2, Math.min(y, overlay.height - labelHeight - 2));
+        ctx.fillStyle = 'rgba(5, 7, 19, .88)';
+        ctx.fillRect(labelX, labelY, labelWidth, labelHeight);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(text, labelX + padding, labelY + labelHeight / 2);
+        ctx.beginPath();
+        ctx.arc(labelX + labelWidth - padding - markerRadius, labelY + labelHeight / 2, markerRadius, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+    }
+
+    function detectionColor(detection) {
+        const status = String(detection.status || '').toLowerCase();
+        if (detection.type === 'distraction' || status.includes('mobile') || status.includes('phone')) return '#fb7185';
+        if (status === 'attentive') return '#a3e635';
+        if (status === 'distracted' || status === 'looking around') return '#fbbf24';
+        if (status === 'leaning to copy') return '#22d3ee';
+        if (status === 'sharing answers') return '#a78bfa';
+        return '#c4b5fd';
+    }
+
+    function detectionCategory(detection) {
+        const descriptor = `${detection.type || ''} ${detection.object_label || ''} ${detection.label || ''} ${detection.status || ''}`.toLowerCase();
+        if (descriptor.includes('phone') || descriptor.includes('mobile')) return 'phone';
+        if (detection.type === 'student' || descriptor.includes('person')) return 'student';
+        return String(detection.object_label || detection.label || detection.type || 'object').toLowerCase();
+    }
+
+    function intersectionOverUnion(firstBox, secondBox) {
+        const left = Math.max(firstBox[0], secondBox[0]);
+        const top = Math.max(firstBox[1], secondBox[1]);
+        const right = Math.min(firstBox[2], secondBox[2]);
+        const bottom = Math.min(firstBox[3], secondBox[3]);
+        const intersection = Math.max(0, right - left) * Math.max(0, bottom - top);
+        const firstArea = Math.max(0, firstBox[2] - firstBox[0]) * Math.max(0, firstBox[3] - firstBox[1]);
+        const secondArea = Math.max(0, secondBox[2] - secondBox[0]) * Math.max(0, secondBox[3] - secondBox[1]);
+        const union = firstArea + secondArea - intersection;
+        return union > 0 ? intersection / union : 0;
     }
 
     function drawDetections(data) {
         const ctx = overlay.getContext('2d');
-        // clear
         ctx.clearRect(0, 0, overlay.width, overlay.height);
-        if (!data || !data.detections) return;
-        // scale might be needed if canvas displayed scaled; coordinates assume original video resolution
-        const studentThreshold = (confSlider.value || 70) / 100;
-        const objectThreshold = Math.min(studentThreshold, 0.25);
+        if (!data || !Array.isArray(data.detections)) return;
+        const studentThreshold = Number(confSlider.value || 70) / 100;
+        const objectThreshold = Math.min(studentThreshold, .25);
+        const renderedDetections = [];
         let visibleCount = 0;
-        data.detections.forEach(d => {
-            const box = d.face_bbox || d.bbox;
+
+        [...data.detections]
+            .sort((first, second) => Number(second.confidence || 0) - Number(first.confidence || 0))
+            .forEach(detection => {
+            const box = detection.face_bbox || detection.bbox;
             if (!box) return;
-            const conf = d.confidence || 0;
-            const isObjectLike = d.type === 'distraction' || d.type === 'object' || d.status === 'using mobile' || d.status === 'phone_detected';
-            const threshold = isObjectLike ? objectThreshold : studentThreshold;
-            if (conf < threshold) return; // skip low-confidence
+            const confidence = Number(detection.confidence || 0);
+            const category = detectionCategory(detection);
+            const objectLike = category !== 'student';
+            if (confidence < (objectLike ? objectThreshold : studentThreshold)) return;
+
+            const duplicate = renderedDetections.some(rendered =>
+                rendered.category === category && intersectionOverUnion(rendered.box, box) >= .35
+            );
+            if (duplicate) return;
+            renderedDetections.push({ category, box });
+
             visibleCount += 1;
-            const [x1,y1,x2,y2] = box.map(v => Math.round(v));
-            const w = x2 - x1; const h = y2 - y1;
-            let color = '#22c55e';
-            if (d.type === 'student') {
-                color = d.status === 'attentive' ? '#22c55e' : d.status === 'distracted' ? '#f59e0b' : '#94a3b8';
-            } else if (d.type === 'distraction') {
-                color = '#ef4444';
-            } else if (d.status === 'leaning to copy') {
-                color = '#06b6d4';
-            } else if (d.status === 'looking around') {
-                color = '#f97316';
-            } else if (d.status === 'sharing answers') {
-                color = '#8b5cf6';
-            } else if (d.status === 'using mobile') {
-                color = '#ef4444';
-            } else if (d.status === 'phone_detected') {
-                color = '#ef4444';
-            } else if (d.status === 'attentive') {
-                color = '#22c55e';
-            } else if (d.status === 'distracted') {
-                color = '#f59e0b';
-            } else if (d.status === 'unknown') {
-                color = '#94a3b8';
+            const [x1, y1, x2, y2] = box.map(value => Math.round(value));
+            const color = detectionColor(detection);
+            drawDetectionBox(ctx, x1, y1, x2 - x1, y2 - y1, color);
+
+            const confidencePercent = Math.round(confidence * 100);
+            const isStudent = detection.type === 'student';
+            const objectName = isStudent
+                ? 'PERSON'
+                : String(detection.object_label || detection.label || detection.type || 'OBJECT').replaceAll('_', ' ').toUpperCase();
+            const status = String(detection.status || detection.label || 'DETECTED').replaceAll('_', ' ').toUpperCase();
+            const objectLabel = `${objectName}  ${confidencePercent}%`;
+            const statusLabel = `${status}  ${confidencePercent}%`;
+            const labelHeight = Math.max(25, Math.round(overlay.width / 35));
+            ctx.font = `700 ${Math.max(12, Math.round(overlay.width / 58))}px Manrope, Arial`;
+            ctx.textBaseline = 'middle';
+
+            drawDetectionLabel(ctx, objectLabel, x1, y1 - labelHeight - 4, color, labelHeight);
+            if (isStudent) {
+                drawDetectionLabel(ctx, statusLabel, x1, y2 + 4, color, labelHeight);
             }
-            ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.strokeRect(x1,y1,w,h);
-            
-            // Draw labels: object type at TOP-RIGHT, attention status below at top-left
-            ctx.fillStyle = color; 
-            ctx.font = 'bold 14px Inter, Arial';
-            ctx.textBaseline = 'top';
-            
-            // First line at TOP-RIGHT: object type (PERSON, PHONE, etc)
-            const objectLabel = d.type === 'student' ? 'PERSON' : (d.object_label || d.type || 'UNKNOWN');
-            const objectText = String(objectLabel).toUpperCase();
-            const textMetrics = ctx.measureText(objectText);
-            const textWidth = textMetrics.width;
-            // Position at top-right, with padding
-            ctx.fillText(objectText, x2 - textWidth - 4, Math.max(2, y1 - 18));
-            
-            // For students, draw attention label OUTSIDE the box at top-left with confidence.
-            if (d.type === 'student') {
-                const rawStatus = String(d.status || d.label || 'unknown').toLowerCase();
-                const attentionLabel = rawStatus === 'attentive'
-                    ? 'ATTENTIVE'
-                    : rawStatus === 'distracted'
-                        ? 'DISTRACTED'
-                        : 'UNKNOWN';
-                const attentionConf = Number(d.confidence || 0).toFixed(2);
-                const statusText = `${attentionLabel} ${attentionConf}`;
-                const statusY = Math.max(2, y1 - 18);
-                // subtle backdrop for readability on bright frames
-                const statusWidth = ctx.measureText(statusText).width;
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-                ctx.fillRect(x1 + 2, statusY - 1, statusWidth + 6, 18);
-                ctx.fillStyle = color;
-                ctx.fillText(statusText, x1 + 4, statusY);
-            } else {
-                // Non-student objects keep their own top-left label if different from object text.
-                const statusLabel = d.label || d.status;
-                if (statusLabel && String(statusLabel).toLowerCase() !== 'person' && String(statusLabel).toUpperCase() !== objectText) {
-                    const statusText = `${String(statusLabel).toUpperCase()} ${(conf).toFixed(2)}`;
-                    ctx.fillText(statusText, x1 + 4, Math.max(2, y1 - 18));
-                }
-            }
-            ctx.textBaseline = 'alphabetic';
         });
-        // draw score
+
+        detectionEl.textContent = visibleCount;
         if (typeof data.class_score !== 'undefined') {
-            ctx.fillStyle = '#fff'; ctx.font = '22px Inter, Arial';
-            ctx.fillText('Score: ' + data.class_score, 10, 28);
-            ctx.font = '16px Inter, Arial';
-            ctx.fillText('Threshold: ' + Math.round(studentThreshold * 100) + '%', 10, 52);
-            ctx.fillText('Visible detections: ' + visibleCount, 10, 74);
-        }
-        if (visibleCount === 0) {
-            ctx.fillStyle = '#e2e8f0';
-            ctx.font = '18px Inter, Arial';
-            ctx.fillText('No detections above threshold', 10, 102);
+            const numericScore = Math.max(0, Math.min(100, Number(data.class_score) || 0));
+            const shownScore = Math.round(numericScore);
+            attentionScoreEl.textContent = `${shownScore}%`;
+            hudScore.textContent = `${shownScore}%`;
+            scoreRing.style.setProperty('--score', `${numericScore * 3.6}deg`);
+            scoreMessage.textContent = shownScore >= 75 ? 'Strong focus across visible subjects.' : shownScore >= 50 ? 'Mixed attention signals detected.' : 'Attention may need intervention.';
         }
     }
 
-    // FPS / response tracking based on completed inference requests per window.
     let fpsSmoothed = 0;
-
     function updateFPS() {
         const now = performance.now();
         const elapsed = now - fpsWindowStart;
         if (elapsed >= 1000) {
-            const instFps = (requestCount * 1000) / elapsed;
-            fpsSmoothed = fpsSmoothed ? (fpsSmoothed * 0.7 + instFps * 0.3) : instFps;
+            const instantFps = (requestCount * 1000) / elapsed;
+            fpsSmoothed = fpsSmoothed ? fpsSmoothed * .7 + instantFps * .3 : instantFps;
             fpsWindowStart = now;
             requestCount = 0;
         }
         fpsEl.textContent = Math.round(fpsSmoothed);
-        if (lastResponseMs !== null) {
-            respEl.textContent = lastResponseMs;
-        }
+        if (lastResponseMs !== null) respEl.textContent = lastResponseMs;
     }
 
-    // confidence slider
-    confSlider.addEventListener('input', () => {
-        confValue.textContent = confSlider.value + '%';
-        appliedThresholdEl.textContent = confSlider.value;
-    });
+    function updateThreshold(value) {
+        const numeric = Number(value);
+        confSlider.value = numeric;
+        confValue.textContent = `${numeric}%`;
+        appliedThresholdEl.textContent = numeric;
+        const progress = ((numeric - 20) / 75) * 100;
+        confSlider.style.background = `linear-gradient(90deg, var(--violet) ${progress}%, rgba(255,255,255,.1) ${progress}%)`;
+        document.querySelectorAll('.threshold-preset').forEach(button => button.classList.toggle('active', Number(button.dataset.value) === numeric));
+    }
 
-    document.querySelectorAll('.threshold-preset').forEach((button) => {
-        button.addEventListener('click', () => {
-            confSlider.value = button.dataset.value;
-            confValue.textContent = button.dataset.value + '%';
-            appliedThresholdEl.textContent = button.dataset.value;
-        });
-    });
-
+    confSlider.addEventListener('input', () => updateThreshold(confSlider.value));
+    document.querySelectorAll('.threshold-preset').forEach(button => button.addEventListener('click', () => updateThreshold(button.dataset.value)));
     btnServer.addEventListener('click', showServer);
     btnLocal.addEventListener('click', startLocal);
-    btnStop.addEventListener('click', stopLocal);
+    emptyStart.addEventListener('click', startLocal);
+    btnStop.addEventListener('click', () => stopLocal());
 
-    // Report and Reset button handlers
-    document.querySelectorAll('.btn').forEach(btn => {
-        if (btn.textContent.includes('REPORT')) {
-            btn.addEventListener('click', async () => {
-                try {
-                    const response = await fetch('/api/report', { method: 'POST' });
-                    const data = await response.json();
-                    alert(data.message || 'Report generated successfully!');
-                } catch (e) {
-                    alert('Report generation: ' + e.message);
-                }
-            });
-        }
-        if (btn.textContent.includes('RESET')) {
-            btn.addEventListener('click', async () => {
-                try {
-                    const response = await fetch('/api/reset', { method: 'POST' });
-                    const data = await response.json();
-                    alert(data.message || 'Engine reset successfully!');
-                    location.reload();
-                } catch (e) {
-                    alert('Engine reset: ' + e.message);
-                }
-            });
+    document.getElementById('report-btn').addEventListener('click', async () => {
+        try {
+            const response = await fetch('/api/report', { method: 'POST' });
+            const data = await response.json();
+            notify(data.message || 'Report generated successfully.');
+        } catch (error) {
+            notify(`Report generation failed: ${error.message}`, true);
         }
     });
 
-    // default
-    confSlider.value = 70;
-    confValue.textContent = '70%';
-    appliedThresholdEl.textContent = '70';
-    showServer();
+    document.getElementById('reset-btn').addEventListener('click', async () => {
+        try {
+            const response = await fetch('/api/reset', { method: 'POST' });
+            const data = await response.json();
+            notify(data.message || 'Engine reset successfully.');
+            setTimeout(() => location.reload(), 650);
+        } catch (error) {
+            notify(`Engine reset failed: ${error.message}`, true);
+        }
+    });
+
+    updateThreshold(70);
+    resetTelemetry();
 })();
 </script>
+</body>
 </html>

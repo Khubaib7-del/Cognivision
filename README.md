@@ -10,6 +10,10 @@ license: mit
 short_description: AI-powered student attention & cheating detection dashboard
 ---
 
+<p align="center">
+    <img src="assets/cognivision-banner.svg" alt="CogniVision eye intelligence banner" width="1200">
+</p>
+
 # CogniVision: Automated Student Attention and Cheating Behavior Detection
 
 CogniVision is an AI-powered computer vision system designed for live student monitoring in educational environments (exams, remote proctoring, and hybrid classrooms). By combining a high-accuracy, fine-tuned **EfficientNet-B2** attention classifier with a custom-trained **YOLOv8** object and behavior detector, the system provides real-time alerts and visual metrics through an interactive FastAPI dashboard.

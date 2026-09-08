@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" role="img" aria-labelledby="title desc">
+  <title id="title">CogniVision eye intelligence banner</title>
+  <desc id="desc">An animated eye with a scanning line for the CogniVision attention intelligence dashboard.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#070a18"/>
+      <stop offset="0.55" stop-color="#11162e"/>
+      <stop offset="1" stop-color="#070a18"/>
+    </linearGradient>
+    <linearGradient id="eye" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="scan" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop stop-color="#8b5cf6" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="12"/></filter>
+    <filter id="shadow"><feGaussianBlur stdDeviation="4"/></filter>
+    <clipPath id="banner-clip"><rect width="1200" height="320" rx="24"/></clipPath>
+  </defs>
+  <g clip-path="url(#banner-clip)">
+    <rect width="1200" height="320" fill="url(#bg)"/>
+    <circle cx="270" cy="160" r="180" fill="url(#glow)" filter="url(#blur)"/>
+    <path d="M0 48H1200M0 96H1200M0 144H1200M0 192H1200M0 240H1200M0 288H1200" stroke="#67e8f9" stroke-opacity=".045"/>
+    <path d="M80 0V320M160 0V320M240 0V320M320 0V320M400 0V320M480 0V320M560 0V320M640 0V320M720 0V320M800 0V320M880 0V320M960 0V320M1040 0V320M1120 0V320" stroke="#67e8f9" stroke-opacity=".035"/>
+    <g transform="translate(270 160)">
+      <circle r="104" fill="none" stroke="#67e8f9" stroke-opacity=".16"/>
+      <circle r="88" fill="none" stroke="#8b5cf6" stroke-opacity=".23" stroke-dasharray="130 420">
+        <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="9s" repeatCount="indefinite"/>
+      </circle>
+      <path d="M-74 0S-30-54 0-54 74 0 74 0 30 54 0 54-74 0-74 0Z" fill="#0c1024" stroke="url(#eye)" stroke-width="5" stroke-linejoin="round" stroke-dasharray="290" stroke-dashoffset="290">
+        <animate attributeName="stroke-dashoffset" from="290" to="0" dur="1.4s" fill="freeze"/>
+      </path>
+      <circle r="27" fill="#a3e635" fill-opacity=".18" filter="url(#shadow)"/>
+      <circle r="17" fill="#a3e635">
+        <animate attributeName="r" values="17;20;17" dur="2.6s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="6" cy="-6" r="6" fill="#fff"/>
+      <path d="M-91 0H91" stroke="url(#scan)" stroke-width="3" opacity="0">
+        <animate attributeName="opacity" values="0;1;1;0" dur="2.8s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" values="0 -62;0 62;0 -62" dur="2.8s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    <g transform="translate(470 111)">
+      <text fill="#f7f8ff" font-family="Manrope,Segoe UI,sans-serif" font-size="48" font-weight="800" letter-spacing="-2">Cogni<tspan fill="#22d3ee">Vision</tspan></text>
+      <text y="39" fill="#8d96b8" font-family="Space Mono,Consolas,monospace" font-size="12" letter-spacing="3">ATTENTION INTELLIGENCE / LIVE ANALYSIS</text>
+      <rect y="70" width="440" height="2" rx="1" fill="#22d3ee" fill-opacity=".16"/>
+      <rect y="70" width="125" height="2" rx="1" fill="url(#scan)">
+        <animate attributeName="x" values="0;315;0" dur="3.6s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    <rect x="1" y="1" width="1198" height="318" rx="23" fill="none" stroke="#67e8f9" stroke-opacity=".2"/>
+  </g>
+</svg>

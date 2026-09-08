@@ -35,9 +35,11 @@ class ProcessingPipeline:
             self.has_behavior_detector = False
 
         # Lightweight face detector used to localize the actual face inside a person box.
-        self.face_cascade = cv2.CascadeClassifier(
-            cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
-        )
+        self.face_cascade = None
+        if hasattr(cv2, "CascadeClassifier"):
+            self.face_cascade = cv2.CascadeClassifier(
+                cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+            )
         
         # Initialize Classifier (EfficientNet RGB checkpoint from Kaggle training)
         if classifier_weights is None:
@@ -135,6 +137,9 @@ class ProcessingPipeline:
         y2 = max(y1 + 1, min(y2, h))
 
         person_crop = frame[y1:y2, x1:x2]
+        if self.face_cascade is None:
+            return self._get_face_bbox(frame, bbox)
+
         if person_crop.size == 0:
             return self._get_face_bbox(frame, bbox)
 
